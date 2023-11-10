@@ -1,0 +1,7 @@
+#+title:    :lang roc
+#+subtitle: Roc programming language module for Emacs Doom
+#+created:  November 11, 2023
+
+Roc is a strongly typed functional programming language inspired by Elm, but for variety of platforms. See https://www.roc-lang.org/.
+
+This is a private module by Tad Lispy.
