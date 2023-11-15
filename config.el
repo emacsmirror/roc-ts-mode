@@ -2,8 +2,10 @@
 
 ;; Setup the major mode for roc source files
 
-(define-derived-mode roc-mode fundamental-mode "Roc"
-  "Major mode for the Roc programming language")
+(define-derived-mode roc-mode prog-mode "Roc"
+  "Major mode for the Roc programming language"
+  (setq-local comment-start "#"))
+
 (add-to-list 'auto-mode-alist
              '("\\.roc\\'" . roc-mode))
 
