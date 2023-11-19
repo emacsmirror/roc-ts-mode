@@ -28,20 +28,39 @@
   '(:language roc
     :override t
     :feature comment
-    ((line_comment) @font-lock-constant-face)
+    ((line_comment) @font-lock-comment-face)
+
+
 
     :language roc
     :override t
     :feature everything
+    ;; Basics
     ((string) @font-lock-string-face
-     (app_name) @font-lock-string-face
-     (app_header) @font-lock-keyword-face
-     (record) @font-lock-delimiter-face
-     (record_field_expr (identifier) @font-lock-variable-name-face)
-     (imports_entry) @font-lock-variable-name-face
-     (provides (ident) @font-lock-variable-use-face)
      (identifier) @font-lock-variable-use-face
-     (value_declaration (value_declaration_left (identifier_pattern (long_identifier (identifier))))  @font-lock-variable-name-face)
+     (module) @font-lock-constant-face
+     (expect "expect" @font-lock-keyword-face)
+
+     ;; If - then - else
+     (if_expression
+      ("if" @font-lock-keyword-face)
+      ("then" @font-lock-keyword-face))
+     (else_expression "else" @font-lock-keyword-face)
+
+     ;; Records
+     (record
+      (record_field_expr (identifier)  @font-lock-property-name-face))
+
+     ;; Application header
+     (app_header
+      "app" @font-lock-keyword-face
+      (app_name) @font-lock-string-face
+      (app_header_body
+       (packages ("packages") @font-lock-keyword-face)
+       (imports ("imports") @font-lock-keyword-face)
+       (provides
+        ("provides") @font-lock-keyword-face
+         (to "to") @font-lock-keyword-face)))
 
      ;; Available Font Lock faces: https://www.gnu.org/software/emacs/manual/html_node/elisp/Faces-for-Font-Lock.html
     )))
