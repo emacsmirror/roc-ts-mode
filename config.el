@@ -18,41 +18,27 @@
               (apply #'treesit-font-lock-rules roc-ts-font-lock-rules))
 
   (setq-local treesit-font-lock-feature-list
-              '((comment)
-                ;; TODO: Split into features
-                (everything)))
+              '((basics)
+                (application-header)
+                (records)
+                (if-then-else)))
 
   (treesit-major-mode-setup))
 
 (defvar roc-ts-font-lock-rules
   '(:language roc
     :override t
-    :feature comment
-    ((line_comment) @font-lock-comment-face)
-
-
+    :feature basics
+    ((line_comment) @font-lock-comment-face
+     (string) @font-lock-string-face
+     (identifier) @font-lock-variable-use-face
+     (module) @font-lock-constant-face
+     (expect "expect" @font-lock-keyword-face))
 
     :language roc
     :override t
-    :feature everything
-    ;; Basics
-    ((string) @font-lock-string-face
-     (identifier) @font-lock-variable-use-face
-     (module) @font-lock-constant-face
-     (expect "expect" @font-lock-keyword-face)
-
-     ;; If - then - else
-     (if_expression
-      ("if" @font-lock-keyword-face)
-      ("then" @font-lock-keyword-face))
-     (else_expression "else" @font-lock-keyword-face)
-
-     ;; Records
-     (record
-      (record_field_expr (identifier)  @font-lock-property-name-face))
-
-     ;; Application header
-     (app_header
+    :feature application-header
+    ((app_header
       "app" @font-lock-keyword-face
       (app_name) @font-lock-string-face
       (app_header_body
@@ -60,10 +46,26 @@
        (imports ("imports") @font-lock-keyword-face)
        (provides
         ("provides") @font-lock-keyword-face
-         (to "to") @font-lock-keyword-face)))
+        (to "to") @font-lock-keyword-face))))
+
+    :language roc
+    :override t
+    :feature records
+    ((record
+      (record_field_expr (identifier)  @font-lock-property-name-face)))
+
+    :language roc
+    :override t
+    :feature if-then-else
+    ((if_expression
+      ("if" @font-lock-keyword-face)
+      ("then" @font-lock-keyword-face))
+     (else_expression "else" @font-lock-keyword-face))
+
+
 
      ;; Available Font Lock faces: https://www.gnu.org/software/emacs/manual/html_node/elisp/Faces-for-Font-Lock.html
-    )))
+    ))
 
 
 
