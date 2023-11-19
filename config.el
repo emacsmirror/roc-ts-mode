@@ -42,23 +42,11 @@
      (provides (ident) @font-lock-variable-use-face)
      (identifier) @font-lock-variable-use-face
      (value_declaration (value_declaration_left (identifier_pattern (long_identifier (identifier))))  @font-lock-variable-name-face)
+
+     ;; Available Font Lock faces: https://www.gnu.org/software/emacs/manual/html_node/elisp/Faces-for-Font-Lock.html
     )))
 
 
-;; Available Font Lock faces
-;; @font-lock-bracket-face
-;; @font-lock-builtin-face
-;; @font-lock-comment-face
-;; @font-lock-constant-face
-;; @font-lock-delimiter-face
-;; @font-lock-function-name-face
-;; @font-lock-keyword-face
-;; @font-lock-misc-punctuation-face
-;; @font-lock-number-face
-;; @font-lock-operator-face
-;; @font-lock-string-face
-;; @font-lock-variable-name-face
-;; @font-lock-variable-use-face
 
 
 ;; Setup the LSP support
