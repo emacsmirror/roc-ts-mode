@@ -9,6 +9,10 @@
     (treesit-parser-create 'roc)
     (roc-mode-ts-setup)))
 
+;; TODO: Remove once I'm done working on the highlighting.
+(add-hook! 'roc-mode-hook #'treesit-inspect-mode)
+
+
 (add-to-list 'auto-mode-alist
              '("\\.roc\\'" . roc-mode))
 
