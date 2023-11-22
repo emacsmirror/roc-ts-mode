@@ -18,6 +18,9 @@
 
 (defun roc-mode-ts-setup ()
   "Setup Tree Sitter for the Roc mode"
+
+  ;; TODO: There is a highlight.scm file in the tree-sitter-roc codebase. How can I use it?
+
   (setq-local treesit-font-lock-settings
               (apply #'treesit-font-lock-rules roc-ts-font-lock-rules))
 
