@@ -8,7 +8,31 @@ Roc is a strongly typed functional programming language inspired by Elm, but for
 
 This code is an early work in progress and I am a novice at Emacs Lisp. Polite suggestions and contributions are welcome.
 
-* TODO Install
+* Install
+
+Currently only installation from the Git repository is possible.
+
+Requirements: Emacs 29.1+ with the [[https://github.com/radian-software/straight.el][Straight]] package manager.
+
+** In Doom Emacs
+
+Add the following to ~packages.el~ (use ~doom/find-file-in-private-config~ typically bound to ~SPC f p~):
+
+#+begin_src emacs-lisp :noeval
+(package! roc-mode :recipe (:host gitlab :repo "tad-lispy/roc-mode"))
+#+end_src
+
+See also [[https://gitlab.com/tad-lispy/nixos-configuration/-/tree/main/doom-emacs/modules/lang/roc][my private module for Roc]] that uses this package.
+
+** Using straight
+
+#+begin_src emacs-lisp
+(straight-use-package '(roc-mode :type git :host gitlab :repo "tad-lispy/roc-mode"))
+#+end_src
+
+** TODO vanilla Emacs
+
+Once the package is published to MELPA, it should be possible to install it with built-in ~install-package~, and ~straight~ shouldn't be a requirement any longer.
 
 * TODO Use
 
