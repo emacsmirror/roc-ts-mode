@@ -1,7 +1,31 @@
-#+title:    :lang roc
-#+subtitle: Roc programming language module for Emacs Doom
-#+created:  November 11, 2023
+#+title: Roc Mode
+#+subtitle: Roc programming language mode for Emacs
 
 Roc is a strongly typed functional programming language inspired by Elm, but for variety of platforms. See https://www.roc-lang.org/.
 
-This is a private module by Tad Lispy.
+* TODO Install
+
+* TODO Use
+
+* Features
+
+** TODO Language server integration
+
+I have it working in my Emacs Doom config, but it has doom specific code there (modules). Shall I port it here?
+
+Also, Emacs 29 comes with an LSP client called Eglot built in. But I'm using lsp-mode installed from straight.
+
+** STRT Syntax highlighting
+
+Partially done.
+
+Relevant discussion: https://lists.gnu.org/archive/html/emacs-devel/2023-11/msg01365.html
+
+** TODO Indentation rules
+
+Can tree sitter be utilized here?
+
+* License
+
+GPLv3
+
