@@ -38,12 +38,6 @@ Once the package is published to MELPA, it should be possible to install it with
 
 * Features
 
-** TODO Language server integration
-
-I have it working in my Emacs Doom config, but it has doom specific code there (modules). Shall I port it here?
-
-Also, Emacs 29 comes with an LSP client called Eglot built in. But I'm using lsp-mode installed from straight.
-
 ** STRT Syntax highlighting
 
 Partially done.
@@ -53,6 +47,13 @@ Relevant discussion: https://lists.gnu.org/archive/html/emacs-devel/2023-11/msg0
 ** TODO Indentation rules
 
 Can tree sitter be utilized here?
+
+** TODO Language server integration
+
+I have it working in my Emacs Doom config, but it has doom specific code there (modules). Shall I port it here?
+
+Also, Emacs 29 comes with an LSP client called Eglot built in. But I'm using lsp-mode installed from straight.
+
 
 * License
 
