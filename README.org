@@ -34,13 +34,15 @@ See also [[https://gitlab.com/tad-lispy/nixos-configuration/-/tree/main/doom-ema
 
 Once the package is published to MELPA, it should be possible to install it with built-in ~install-package~, and ~straight~ shouldn't be a requirement any longer.
 
-* TODO Use
-
 * Features
 
 ** STRT Syntax highlighting
 
 Partially done.
+
+After installing the package you need to install the Tree Sitter grammar. Run ~treesit-install-language-grammar~ and select ~roc~. This should give you syntax highlighting.
+
+Question: Should this be automated?
 
 Relevant discussion: https://lists.gnu.org/archive/html/emacs-devel/2023-11/msg01365.html
 

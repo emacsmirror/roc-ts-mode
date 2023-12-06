@@ -49,6 +49,9 @@
 (add-to-list 'auto-mode-alist
              '("\\.roc\\'" . roc-mode))
 
+(add-to-list 'treesit-language-source-alist
+             '(roc . ("https://github.com/faldor20/tree-sitter-roc/")))
+
 ;;;; Private
 
 (defvar roc-mode--ts-font-lock-rules
