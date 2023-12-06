@@ -3,6 +3,11 @@
 
 Roc is a strongly typed functional programming language inspired by Elm, but for variety of platforms. See https://www.roc-lang.org/.
 
+
+* Disclaimer
+
+This code is an early work in progress and I am a novice at Emacs Lisp. Polite suggestions and contributions are welcome.
+
 * TODO Install
 
 * TODO Use
