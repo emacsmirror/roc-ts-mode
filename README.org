@@ -52,9 +52,30 @@ Can tree sitter be utilized here?
 
 ** TODO Language server integration
 
-I have it working in my Emacs Doom config, but it has doom specific code there (modules). Shall I port it here?
+*** LSP Mode
 
-Also, Emacs 29 comes with an LSP client called Eglot built in. But I'm using lsp-mode installed from straight.
+Add the following to your configuration.
+
+#+begin_src emacs-lisp :noeval
+(require 'roc-mode)
+
+(use-package! lsp-mode
+      :config
+      (roc-mode--lsp-setup))
+
+(defun roc-mode--lsp-setup ()
+  "Setup LSP for Roc. Requires lsp-mode package."
+  (add-to-list 'lsp-language-id-configuration '(roc-mode . "roc"))
+  (lsp-register-client (make-lsp-client :new-connection (lsp-stdio-connection "roc_ls")
+                                        :activation-fn (lsp-activate-on "roc")
+                                        :major-modes '(roc-mode)
+                                        :server-id 'roc_ls))
+  (add-hook 'roc-mode-local-vars-hook #'lsp!))
+#+end_src
+
+*** TODO Eglot
+
+Emacs 29 comes with a built-in LSP client called Eglot. How to integrate with it?
 
 
 * License
