@@ -82,10 +82,10 @@
     :language roc
     :override t
     :feature if-then-else
-    ((if_expression
-      "if" @font-lock-keyword-face
+    ((if_expr
+      (if) @font-lock-keyword-face
       (then ("then") @font-lock-keyword-face)
-      "else" @font-lock-keyword-face))))
+      (else ("else") @font-lock-keyword-face)))))
 
 (defun roc-mode--ts-setup ()
   "Setup Tree Sitter for the Roc mode"
