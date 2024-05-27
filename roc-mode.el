@@ -37,20 +37,7 @@
 
 (require 'treesit)
 
-;;;;; Commands
-
-(define-derived-mode roc-mode prog-mode "Roc"
-  "Major mode for the Roc programming language"
-  (setq-local comment-start "#")
-  (when (treesit-ready-p 'roc)
-    (treesit-parser-create 'roc)
-    (roc-mode--ts-setup)))
-
-(add-to-list 'auto-mode-alist
-             '("\\.roc\\'" . roc-mode))
-
-(add-to-list 'treesit-language-source-alist
-             '(roc . ("https://github.com/faldor20/tree-sitter-roc/")))
+;;;;; Custom variables
 
 (defgroup roc nil
   "Major mode for the Roc programming language."
@@ -60,6 +47,25 @@
   "The basic indentation offset in `roc-mode'."
   :type 'natnum
   :group 'roc)
+
+;;;;; Commands
+
+(define-derived-mode roc-mode prog-mode "Roc"
+  "Major mode for the Roc programming language"
+  (setq-local comment-start "#"
+              comment-start-skip (rx (one-or-more "#") (zero-or-more blank))
+              comment-column 0
+              indent-tabs-mode nil
+              tab-width roc-mode-indent-offset)
+  (when (treesit-ready-p 'roc)
+    (treesit-parser-create 'roc)
+    (roc-mode--ts-setup)))
+
+(add-to-list 'auto-mode-alist
+             '("\\.roc\\'" . roc-mode))
+
+(add-to-list 'treesit-language-source-alist
+             '(roc . ("https://github.com/faldor20/tree-sitter-roc/")))
 
 ;;;; Private
 
