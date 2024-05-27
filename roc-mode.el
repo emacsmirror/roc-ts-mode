@@ -97,15 +97,25 @@
       (else ("else") @font-lock-keyword-face)))))
 
 (defvar roc-mode--ts-indent-rules
-  `(((node-is ,(rx bos "app_header" eos)) column-0 0)
+  `(;; The app header should be in the first column:
+    ((node-is ,(rx bos "app_header" eos)) column-0 0)
+    ;; Node types that should be at the same indentation level as their parents:
+    ;; - closing brackets
     ((n-p-gp ,(rx (or "]" "}" ")")) nil nil) parent-bol 0)
+    ;; - all top-level things
     ((parent-is "file") parent-bol 0)
+    ;; - type annotations and the LHS of value declarations
     ((n-p-gp ,(rx bos "annotation_type_def" eos) ,(rx bos "value_declaration" eos) nil) parent-bol 0)
     ((n-p-gp ,(rx bos "decl_left" eos) ,(rx bos "value_declaration" eos) nil) parent-bol 0)
+    ;; - else, else if, then
     ((n-p-gp ,(rx bos (or "else" "else_if" "then") eos) "if_expr" nil) parent-bol 0)
+    ;; - binary operators
     ((parent-is ,(rx bos "bin_op_expr" eos)) parent-bol 0)
+    ;; - function types
     ((parent-is ,(rx bos "function_type" eos)) parent-bol 0)
+    ;; - type arguments
     ((n-p-gp nil ,(rx bos "apply_type_args" eos) ,(rx bos "apply_type" eos)) parent-bol 0)
+    ;; Everything else should be indented one level further then its parent:
     (catch-all parent-bol roc-mode-indent-offset))
   "Rules for indenting Roc code based on tree-sitter.
 
