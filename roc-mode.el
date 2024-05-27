@@ -52,6 +52,15 @@
 (add-to-list 'treesit-language-source-alist
              '(roc . ("https://github.com/faldor20/tree-sitter-roc/")))
 
+(defgroup roc nil
+  "Major mode for the Roc programming language."
+  :group 'languages)
+
+(defcustom roc-mode-indent-offset 4
+  "The basic indentation offset in `roc-mode'."
+  :type 'natnum
+  :group 'roc)
+
 ;;;; Private
 
 (defvar roc-mode--ts-font-lock-rules
@@ -87,6 +96,21 @@
       (then ("then") @font-lock-keyword-face)
       (else ("else") @font-lock-keyword-face)))))
 
+(defvar roc-mode--ts-indent-rules
+  `(((node-is ,(rx bos "app_header" eos)) column-0 0)
+    ((n-p-gp ,(rx (or "]" "}" ")")) nil nil) parent-bol 0)
+    ((parent-is "file") parent-bol 0)
+    ((n-p-gp ,(rx bos "annotation_type_def" eos) ,(rx bos "value_declaration" eos) nil) parent-bol 0)
+    ((n-p-gp ,(rx bos "decl_left" eos) ,(rx bos "value_declaration" eos) nil) parent-bol 0)
+    ((n-p-gp ,(rx bos (or "else" "else_if" "then") eos) "if_expr" nil) parent-bol 0)
+    ((parent-is ,(rx bos "bin_op_expr" eos)) parent-bol 0)
+    ((parent-is ,(rx bos "function_type" eos)) parent-bol 0)
+    ((n-p-gp nil ,(rx bos "apply_type_args" eos) ,(rx bos "apply_type" eos)) parent-bol 0)
+    (catch-all parent-bol roc-mode-indent-offset))
+  "Rules for indenting Roc code based on tree-sitter.
+
+This is assigned to an entry of `treesit-simple-indent-rules'.")
+
 (defun roc-mode--ts-setup ()
   "Setup Tree Sitter for the Roc mode"
 
@@ -99,6 +123,9 @@
               '((basics)
                 (application-header)
                 (if-then-else)))
+
+  (setf (alist-get 'roc treesit-simple-indent-rules)
+        roc-mode--ts-indent-rules)
 
   (treesit-major-mode-setup))
 
