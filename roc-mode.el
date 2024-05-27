@@ -57,35 +57,163 @@
 (defvar roc-mode--ts-font-lock-rules
   '(:language roc
     :override t
-    :feature basics
+    :feature comments
     ((line_comment) @font-lock-comment-face
-     (string) @font-lock-string-face
-     (identifier) @font-lock-variable-use-face
-     (ident) @font-lock-variable-use-face ;; TODO: What's the difference?
-     (module) @font-lock-constant-face
-     (field_name) @font-lock-property-name-face
-     (expect "expect" @font-lock-keyword-face))
+     (doc_comment) @font-lock-comment-face)
 
     :language roc
     :override t
-    :feature application-header
-    ((app_header
-      "app" @font-lock-keyword-face
-      (app_name) @font-lock-string-face
-      (app_header_body
-       (packages ("packages") @font-lock-keyword-face)
-       (imports ("imports") @font-lock-keyword-face)
-       (provides
-        ("provides") @font-lock-keyword-face
-        (to) @font-lock-keyword-face))))
+    :feature doc-comments
+    ((doc_comment) @font-lock-doc-face)
 
     :language roc
     :override t
-    :feature if-then-else
-    ((if_expr
-      (if) @font-lock-keyword-face
-      (then ("then") @font-lock-keyword-face)
-      (else ("else") @font-lock-keyword-face)))))
+    :feature keywords
+    ((where) @font-lock-keyword-face
+     (implements) @font-lock-keyword-face
+     ;; https://www.roc-lang.org/tutorial#reserved-keywords
+     "if" @font-lock-keyword-face
+     "then" @font-lock-keyword-face
+     "else" @font-lock-keyword-face
+     ;; "when" @font-lock-keyword-face
+     "as" @font-lock-keyword-face
+     ;; "is" @font-lock-keyword-face
+     "dbg" @font-lock-keyword-face
+     "expect" @font-lock-keyword-face
+     ;; "expect-fx" @font-lock-keyword-face
+     ;; "crash" @font-lock-keyword-face
+     ;; "interface" @font-lock-keyword-face
+     "app" @font-lock-keyword-face
+     "package" @font-lock-keyword-face
+     "platform" @font-lock-keyword-face
+     ;; "hosted" @font-lock-keyword-face
+     "exposes" @font-lock-keyword-face
+     "imports" @font-lock-keyword-face
+     "import" @font-lock-keyword-face
+     ;; "with" @font-lock-keyword-face
+     ;; "generates" @font-lock-keyword-face
+     "packages" @font-lock-keyword-face
+     "requires" @font-lock-keyword-face
+     ;; "to" @font-lock-keyword-face
+     "provides" @font-lock-keyword-face)
+
+    :language roc
+    :override t
+    :feature strings
+    ((string) @font-lock-string-face)
+
+    :language roc
+    :override t
+    :feature string-escapes
+    ((escape_char) @font-lock-escape-face
+     (interpolation_char) @font-lock-escape-face)
+
+    :language roc
+    :override t
+    :feature types
+    ((concrete_type) @font-lock-type-face
+     (inferred) @font-lock-type-face
+     (wildcard) @font-lock-type-face
+     (ability) @font-lock-type-face)
+
+    :language roc
+    :override t
+    :feature tag-types
+    ((tags_type
+      (apply_type (concrete_type) @font-lock-builtin-face)))
+
+    :language roc
+    :override t
+    :feature numbers
+    ((int) @font-lock-number-face
+     (xint) @font-lock-number-face
+     (uint) @font-lock-number-face
+     (iint) @font-lock-number-face
+     (float) @font-lock-number-face
+     (decimal) @font-lock-number-face
+     (natural) @font-lock-number-face)
+
+    :language roc
+    :override t
+    :feature record-field-declaration
+    ((field_name) @font-lock-property-name-face)
+
+    :language roc
+    :override t
+    :feature variable-use
+    ((identifier) @font-lock-variable-use-face
+     (ident) @font-lock-variable-use-face) ;; TODO: What's the difference?
+
+    :language roc
+    :override t
+    :feature record-field-access
+    ((field_access_expr
+      target: (variable_expr (identifier))
+      (identifier) @font-lock-property-use-face))
+
+    :language roc
+    :override t
+    :feature function-calls
+    ((function_call_expr
+      caller: (variable_expr (identifier) @font-lock-function-call-face)))
+
+    :language roc
+    :override t
+    :feature definition-names
+    ((annotation_pre_colon) @font-lock-variable-name-face
+     (decl_left
+      (identifier_pattern
+       (identifier) @font-lock-variable-name-face)))
+
+    :language roc
+    :override t
+    :feature tags
+    ((tag) @font-lock-builtin-face)
+
+    :language roc
+    :override t
+    :feature modules
+    ((module) @font-lock-constant-face)
+
+    :language roc
+    :override t
+    :feature operators
+    ((operator) @font-lock-operator-face)
+
+    :language roc
+    :override t
+    :feature boolean-negation
+    ((prefixed_expression
+      (operator "!" @font-lock-negation-char-face)))
+
+    :language roc
+    :override t
+    :feature delimiters
+    ("," @font-lock-delimiter-face)
+
+    :language roc
+    :override t
+    :feature brackets
+    ("[" @font-lock-bracket-face
+     "]" @font-lock-bracket-face
+     "{" @font-lock-bracket-face
+     "}" @font-lock-bracket-face
+     "(" @font-lock-bracket-face
+     ")" @font-lock-bracket-face)
+
+    :language roc
+    :override t
+    :feature misc-punctuation
+    ((arrow) @font-lock-misc-punctuation-face
+     (backslash) @font-lock-misc-punctuation-face
+     (colon_equals) @font-lock-misc-punctuation-face
+     "=" @font-lock-misc-punctuation-face
+     ":" @font-lock-misc-punctuation-face
+     "?" @font-lock-misc-punctuation-face))
+  "The rules for syntax highlighting Roc code based on tree-sitter.
+
+This is passed to `treesit-font-lock-rules' and assigned to
+`treesit-font-lock-settings' in `roc-mode--ts-setup'.")
 
 (defun roc-mode--ts-setup ()
   "Setup Tree Sitter for the Roc mode"
@@ -96,9 +224,10 @@
               (apply #'treesit-font-lock-rules roc-mode--ts-font-lock-rules))
 
   (setq-local treesit-font-lock-feature-list
-              '((basics)
-                (application-header)
-                (if-then-else)))
+              '((comments doc-comments definition-names)
+                (keywords strings string-escapes types tag-types)
+                (numbers)
+                (record-field-declaration record-field-access function-calls tags variable-use modules operators boolean-negation delimiters brackets misc-punctuation)))
 
   (treesit-major-mode-setup))
 
