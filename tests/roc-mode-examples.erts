@@ -1,0 +1,161 @@
+Name: before-and-after
+=-=
+ app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+
+import pf.Stdout
+import pf.Task
+
+main =
+  Stdout.line! "hi"
+=-=
+app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+
+import pf.Stdout
+import pf.Task
+
+main =
+    Stdout.line! "hi"
+=-=-=
+
+Name: basic
+=-=
+app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+
+import pf.Stdout
+import pf.Task
+
+main =
+    Stdout.line! "hi"
+=-=-=
+
+Name: basic2
+=-=
+app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+
+import pf.Stdout
+import pf.Task
+
+main =
+    z = "hi"
+    obj =
+        { a: "hi\n" }
+    q = obj.a
+    Stdout.line! "hi"
+=-=-=
+
+Name: with-comments
+=-=
+app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+
+import pf.Stdout
+import pf.Task
+
+# this is a comment
+main =
+    # another comment
+    z = "hi"
+    # another comment
+    obj =
+        # another comment
+        { a: "hi\n" }
+    q = obj.a
+    Stdout.line! "hi"
+=-=-=
+
+Name: types
+=-=
+app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+
+import pf.Stdout
+import pf.Task
+
+main : Int _ zib, Int _ { a : Int, b : Int _ -> Int } -> [False (Int _ -> zabl) *, True]
+main =
+    z = "hi"
+    obj =
+        { a: "hi\n" }
+    q = obj.a
+    Stdout.line! "hi"
+=-=-=
+
+Name: split-lines
+=-=
+app [
+    main,
+] {
+    pf:
+        platform
+        "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br",
+}
+
+import pf.Stdout
+import pf.Task
+
+main :
+    Int
+        _
+        zib,
+    Int _ {
+        a : Int,
+        b : Int
+            _
+        -> Int,
+    }
+    ->
+    [
+        False
+            (Int
+                _
+            ->
+            zabl)
+            *,
+        True,
+    ]
+main =
+    z = "hi"
+    obj =
+        { a: "hi\n" }
+    q = obj.a
+    Stdout.line! "hi"
+=-=-=
+
+Name: type-aliases
+=-=
+app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+
+Musician : {
+    firstName : {
+        name : Str,
+        otherThing : Str,
+    },
+    lastName ? Str,
+}
+
+Username :=
+    Str
+
+=-=-=
+
+Name: plus
+=-=
+app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+
+## This is a doc comment.
+addAndStringify = \num1, num2 ->
+    Num.toStr
+        (
+            num1
+            +
+            num2
+        )
+=-=-=
+
+Name: pipes
+=-=
+app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+
+toJson : a -> List U8 where a implements Encoding
+toJson = \val ->
+    val
+    |> Encode.toBytes JSON.encoder
+=-=-=
