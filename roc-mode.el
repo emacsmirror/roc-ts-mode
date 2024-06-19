@@ -147,12 +147,6 @@
 
     :language roc
     :override t
-    :feature variable-use
-    ((identifier) @font-lock-variable-use-face
-     (ident) @font-lock-variable-use-face) ;; TODO: What's the difference?
-
-    :language roc
-    :override t
     :feature record-field-access
     ((field_access_expr
       target: (variable_expr (identifier))
@@ -163,6 +157,12 @@
     :feature function-calls
     ((function_call_expr
       caller: (variable_expr (identifier) @font-lock-function-call-face)))
+
+    :language roc
+    :override t
+    :feature variable-use
+    ((identifier) @font-lock-variable-use-face
+     (ident) @font-lock-variable-use-face) ;; TODO: What's the difference?
 
     :language roc
     :override t
@@ -210,13 +210,18 @@
 
     :language roc
     :override t
-    :feature misc-punctuation
-    ((arrow) @font-lock-misc-punctuation-face
-     (backslash) @font-lock-misc-punctuation-face
-     (colon_equals) @font-lock-misc-punctuation-face
-     "=" @font-lock-misc-punctuation-face
-     ":" @font-lock-misc-punctuation-face
-     "?" @font-lock-misc-punctuation-face))
+    :feature arrows
+    ((arrow) @font-lock-misc-punctuation-face)
+
+    :language roc
+    :override t
+    :feature lambdas
+    ((backslash) @font-lock-misc-punctuation-face)
+
+    :language roc
+    :override t
+    :feature assignments
+    ((value_declaration "=" @font-lock-misc-punctuation-face)))
   "The rules for syntax highlighting Roc code based on tree-sitter.
 
 This is passed to `treesit-font-lock-rules' and assigned to
@@ -234,7 +239,7 @@ This is passed to `treesit-font-lock-rules' and assigned to
               '((comments doc-comments definition-names)
                 (keywords strings string-escapes types type-variables tag-types)
                 (numbers)
-                (record-field-declaration record-field-access function-calls tags variable-use modules operators boolean-negation delimiters brackets misc-punctuation)))
+                (record-field-declaration record-field-access function-calls tags variable-use modules operators boolean-negation delimiters brackets arrows lambdas assignments)))
 
   (treesit-major-mode-setup))
 
