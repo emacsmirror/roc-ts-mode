@@ -1,5 +1,3 @@
-;;; lang/roc/roc-mode.el -*- lexical-binding: t; -*-
-
 ;;; roc-mode.el --- Roc programming language mode -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2023 Tad Lispy
@@ -51,7 +49,7 @@
 ;;;;; Commands
 
 (define-derived-mode roc-mode prog-mode "Roc"
-  "Major mode for the Roc programming language"
+  "Major mode for the Roc programming language."
   (setq-local comment-start "#"
               comment-start-skip (rx (one-or-more "#") (zero-or-more blank))
               comment-column 0
@@ -268,7 +266,7 @@ This is passed to `treesit-font-lock-rules' and assigned to
 This is assigned to an entry of `treesit-simple-indent-rules'.")
 
 (defun roc-mode--ts-setup ()
-  "Setup Tree Sitter for the Roc mode"
+  "Setup Tree Sitter for the Roc mode."
 
   ;; TODO: There is a highlight.scm file in the tree-sitter-roc codebase. How can I use it?
 
