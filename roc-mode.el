@@ -35,7 +35,7 @@
 
 (require 'treesit)
 
-;;;;; Custom variables
+;;;; Custom variables
 
 (defgroup roc nil
   "Major mode for the Roc programming language."
@@ -46,7 +46,7 @@
   :type 'natnum
   :group 'roc)
 
-;;;;; Commands
+;;;; Commands
 
 (define-derived-mode roc-mode prog-mode "Roc"
   "Major mode for the Roc programming language."
