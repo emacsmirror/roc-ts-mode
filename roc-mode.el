@@ -120,6 +120,11 @@
 
     :language roc
     :override t
+    :feature type-variables
+    ((bound_variable) @font-lock-type-face)
+
+    :language roc
+    :override t
     :feature tag-types
     ((tags_type
       (apply_type (concrete_type) @font-lock-builtin-face)))
@@ -227,7 +232,7 @@ This is passed to `treesit-font-lock-rules' and assigned to
 
   (setq-local treesit-font-lock-feature-list
               '((comments doc-comments definition-names)
-                (keywords strings string-escapes types tag-types)
+                (keywords strings string-escapes types type-variables tag-types)
                 (numbers)
                 (record-field-declaration record-field-access function-calls tags variable-use modules operators boolean-negation delimiters brackets misc-punctuation)))
 
