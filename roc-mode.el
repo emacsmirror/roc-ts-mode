@@ -66,18 +66,19 @@
     :feature doc-comments
     ((doc_comment) @font-lock-doc-face)
 
+    ;; https://www.roc-lang.org/tutorial#reserved-keywords
     :language roc
     :override t
     :feature keywords
     ((where) @font-lock-keyword-face
      (implements) @font-lock-keyword-face
-     ;; https://www.roc-lang.org/tutorial#reserved-keywords
+     (when) @font-lock-keyword-face
+     (is) @font-lock-keyword-face
+     (exposing) @font-lock-keyword-face
      "if" @font-lock-keyword-face
      "then" @font-lock-keyword-face
      "else" @font-lock-keyword-face
-     ;; "when" @font-lock-keyword-face
      "as" @font-lock-keyword-face
-     ;; "is" @font-lock-keyword-face
      "dbg" @font-lock-keyword-face
      "expect" @font-lock-keyword-face
      ;; "expect-fx" @font-lock-keyword-face
@@ -86,6 +87,7 @@
      "app" @font-lock-keyword-face
      "package" @font-lock-keyword-face
      "platform" @font-lock-keyword-face
+     "module" @font-lock-keyword-face
      ;; "hosted" @font-lock-keyword-face
      "exposes" @font-lock-keyword-face
      "imports" @font-lock-keyword-face
