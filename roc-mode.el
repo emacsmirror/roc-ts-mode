@@ -97,13 +97,17 @@ files in the current directory."
                          buffer-file-name
                          (buffer-modified-p)
                          (file-in-directory-p buffer-file-name directory-to-run-in)))
-             always (yes-or-no-p (format "The file %s is not saved. Still format this directory?"
-                                         (buffer-file-name buffer))))
-        (roc-mode--run-roc-subcommand "format" (list directory-to-run-in))
-        (dolist (buffer (buffer-list))
-          (with-current-buffer buffer
-            (when (and (derived-mode-p 'roc-mode buffer-file-name))
-              (revert-buffer t)))))))
+             always (when (yes-or-no-p (format "Save file %s?"
+                                               (buffer-file-name buffer)))
+                      (with-current-buffer buffer
+                        (save-buffer)
+                        t)))
+        (unwind-protect
+            (call-process roc-mode-program nil nil nil "format" directory-to-run-in)
+          (dolist (buffer (buffer-list))
+            (with-current-buffer buffer
+              (when (and (derived-mode-p 'roc-mode buffer-file-name))
+                (revert-buffer t))))))))
    ((and roc-mode-format-use-apheleia-if-available
          (require 'apheleia nil 'noerror)
          (boundp 'apheleia-formatters)
