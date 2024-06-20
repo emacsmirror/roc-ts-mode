@@ -34,6 +34,8 @@
 
 
 (require 'treesit)
+(eval-when-compile
+  (require 'cl-lib))
 
 ;;;; Custom variables
 
@@ -46,7 +48,131 @@
   :type 'natnum
   :group 'roc)
 
+(defcustom roc-mode-program "roc"
+  "The path to the roc executable."
+  :type 'file
+  :group 'roc)
+
+(defcustom roc-mode-compile-function #'compile
+  "The function to use when running commands like `roc-mode-test'.
+
+This function is passed a single argument, the shell command to
+run."
+  :type 'function
+  :group 'roc)
+
+(defcustom roc-mode-format-use-apheleia-if-available t
+  "Whether to use `apheleia' for `roc-mode-format' if installed."
+  :type 'boolean
+  :group 'roc)
+
+(defcustom roc-mode-format-replace-buffer-contents-max-secs 3
+  "See the second argument of `replace-buffer-contents'."
+  :type '(choice
+          (integer :tag "Seconds")
+          (const :tag "No timeout" nil))
+  :group 'roc)
+
 ;;;; Commands
+
+(defun roc-mode-format (&optional buffer)
+  "Run \"roc format\" on BUFFER.
+
+BUFFER defaults to the current buffer. Interactively, if a prefix
+argument is specified, then BUFFER is t, which means all Roc
+files in the current directory."
+  (interactive (list (if current-prefix-arg 't)))
+  (or buffer (setq buffer (current-buffer)))
+  (cond
+   ((or (eq buffer 't)
+        (and (buffer-file-name buffer)
+             (file-directory-p (buffer-file-name buffer))))
+    (let ((directory-to-run-in (if (eq buffer 't)
+                                   default-directory
+                                 (buffer-file-name buffer))))
+      (when (cl-loop
+             for buffer in (buffer-list)
+             when (with-current-buffer buffer
+                    (and (derived-mode-p 'roc-mode)
+                         buffer-file-name
+                         (buffer-modified-p)
+                         (file-in-directory-p buffer-file-name directory-to-run-in)))
+             always (yes-or-no-p (format "The file %s is not saved. Still format this directory?"
+                                         (buffer-file-name buffer))))
+        (roc-mode--run-roc-subcommand "format" (list directory-to-run-in))
+        (dolist (buffer (buffer-list))
+          (with-current-buffer buffer
+            (when (and (derived-mode-p 'roc-mode buffer-file-name))
+              (revert-buffer t)))))))
+   ((and roc-mode-format-use-apheleia-if-available
+         (require 'apheleia nil 'noerror)
+         (boundp 'apheleia-formatters)
+         (fboundp 'apheleia-format-buffer))
+    (when (null (alist-get 'roc-format apheleia-formatters))
+      (setf (alist-get 'roc-format apheleia-formatters)
+            `(,roc-mode-program "format" "--stdin" "--stdout")))
+    (apheleia-format-buffer 'roc-format))
+   (t
+    (with-temp-buffer
+      (let ((temp-buffer (current-buffer)))
+        (with-current-buffer buffer
+          (if (equal (call-process-region nil nil roc-mode-program nil temp-buffer nil "format" "--stdin" "--stdout")
+                     0)
+              (replace-buffer-contents temp-buffer roc-mode-format-replace-buffer-contents-max-secs)
+            (message "The \"roc format\" command exited unsuccessfully."))))))))
+
+(defun roc-mode-build (&optional file)
+  "Run the \"roc build\" command on FILE.
+
+Interactively, FILE is the current file. If a prefix argument is
+specified, then FILE is nil, meaning no file argument is passed
+to \"roc build\"."
+  (interactive (list (unless current-prefix-arg (buffer-file-name))))
+  (roc-mode--run-roc-subcommand "build" (and file (list file))))
+
+(defun roc-mode-test (&optional file)
+  "Run the \"roc test\" command on FILE.
+
+Interactively, FILE is the current file. If a prefix argument is
+specified, then FILE is nil, meaning no file argument is passed
+to \"roc test\"."
+  (interactive (list (unless current-prefix-arg (buffer-file-name))))
+  (roc-mode--run-roc-subcommand "test" (and file (list file))))
+
+(defun roc-mode-run (&optional file)
+  "Run the \"roc run\" command on FILE.
+
+Interactively, FILE is the current file. If a prefix argument is
+specified, then FILE is nil, meaning no file argument is passed
+to \"roc run\"."
+  (interactive (list (unless current-prefix-arg (buffer-file-name))))
+  (roc-mode--run-roc-subcommand "run" (and file (list file))))
+
+(defun roc-mode-dev (&optional file)
+  "Run the \"roc dev\" command on FILE.
+
+Interactively, FILE is the current file. If a prefix argument is
+specified, then FILE is nil, meaning no file argument is passed
+to \"roc dev\"."
+  (interactive (list (unless current-prefix-arg (buffer-file-name))))
+  (roc-mode--run-roc-subcommand "dev" (and file (list file))))
+
+(defun roc-mode-check (&optional file)
+  "Run the \"roc check\" command on FILE.
+
+Interactively, FILE is the current file. If a prefix argument is
+specified, then FILE is nil, meaning no file argument is passed
+to \"roc check\"."
+  (interactive (list (unless current-prefix-arg (buffer-file-name))))
+  (roc-mode--run-roc-subcommand "check" (and file (list file))))
+
+(defvar-keymap roc-mode-map
+  "C-c C-f" #'roc-mode-format
+  "C-c C-b" #'roc-mode-build
+  "C-c C-t" #'roc-mode-test
+  "C-c C-r" #'roc-mode-run
+  "C-c C-d" #'roc-mode-dev
+  "C-c C-c" #'roc-mode-check)
 
 (define-derived-mode roc-mode prog-mode "Roc"
   "Major mode for the Roc programming language."
@@ -66,6 +192,17 @@
              '(roc . ("https://github.com/faldor20/tree-sitter-roc/")))
 
 ;;;; Private
+
+(defun roc-mode--run-roc-subcommand (subcommand &optional arguments)
+  "Run ``roc SUBCOMMAND ARGUMENTS'' in a compilation buffer."
+  (when (listp arguments)
+    (setq arguments (string-join (mapcar #'shell-quote-argument arguments) " ")))
+  (save-selected-window
+    (funcall roc-mode-compile-function
+             (format "%s %s %s"
+                     (shell-quote-argument roc-mode-program)
+                     subcommand
+                     arguments))))
 
 (defvar roc-mode--ts-font-lock-rules
   '(:language roc
