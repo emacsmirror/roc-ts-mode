@@ -31,7 +31,6 @@ Add the following to ~packages.el~ (use ~doom/find-file-in-private-config~ typic
 Add the following to ~config.el~ (use ~doom/find-file-in-private-config~ typically bound to ~SPC f p~):
 
 #+begin_src emacs-lisp :noeval
-
 (use-package! roc-mode
   :mode ("\\.roc\\'" . roc-mode)
   :config
