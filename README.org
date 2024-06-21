@@ -117,7 +117,7 @@ Add the following to your ~init.el~:
 
 #+begin_src emacs-lisp :noeval
 
-(use-package! roc-mode
+(use-package roc-mode
   :mode ("\\.roc\\'" . roc-mode)
   :config
   ;; any configuration goes here (e.g., see below for language server integration)...
