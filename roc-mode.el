@@ -166,13 +166,16 @@ to \"roc check\"."
       (insert (string-trim output))
       (kill-ring-save (point-min) (point-max)))))
 
+(autoload 'roc-repl "roc-repl")
+
 (defvar-keymap roc-mode-map
   "C-c C-f" #'roc-mode-format
   "C-c C-b" #'roc-mode-build
   "C-c C-t" #'roc-mode-test
   "C-c C-r" #'roc-mode-run
   "C-c C-d" #'roc-mode-dev
-  "C-c C-c" #'roc-mode-check)
+  "C-c C-c" #'roc-mode-check
+  "C-c C-e" #'roc-repl)
 
 ;;;###autoload
 (define-derived-mode roc-mode prog-mode "Roc"

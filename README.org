@@ -44,6 +44,8 @@ Add the following to ~config.el~ (use ~doom/find-file-in-private-config~ typical
          "d" #'roc-mode-dev
          "c" #'roc-mode-check))
 
+  (set-popup-rule! (rx bol "*roc-repl") :size 0.3)
+
   ;; Setup the LSP support
   (when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
     (require 'lsp-mode)
@@ -174,6 +176,7 @@ You can use the following keybindings to run Roc CLI commands.
 | ~C-c C-r~          | ~roc-mode-run~           | ~roc run~     | Run tests in the current file (and modules it imports) |
 | ~C-c C-d~          | ~roc-mode-dev~           | ~roc dev~     | Check current file, then run if no errors              |
 | ~C-c C-c~          | ~roc-mode-check~         | ~roc check~   | Check current file for errors                          |
+| ~C-c C-e~          | ~roc-mode-repl~         | ~roc repl~   | Open a Roc REPL buffer    |
 | N/A                | ~roc-mode-version~       | ~roc version~ | Print and copy the current version of Roc              |
 
 * License
