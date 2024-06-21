@@ -3,6 +3,7 @@
 
 Roc is a strongly typed functional programming language inspired by Elm, but for variety of platforms. See https://www.roc-lang.org/.
 
+This is a friendly fork of [[https://gitlab.com/tad-lispy/roc-mode][the original roc-mode]] by [[https://tad-lispy.com/][tad-lispy]].
 
 * Disclaimer
 
@@ -12,27 +13,108 @@ This code is an early work in progress and I am a novice at Emacs Lisp. Polite s
 
 Currently only installation from the Git repository is possible.
 
-Requirements: Emacs 29.1+ with the [[https://github.com/radian-software/straight.el][Straight]] package manager.
+Requirements: Emacs 29.1+.
 
 ** In Doom Emacs
 
 Add the following to ~packages.el~ (use ~doom/find-file-in-private-config~ typically bound to ~SPC f p~):
 
 #+begin_src emacs-lisp :noeval
-(package! roc-mode :recipe (:host gitlab :repo "tad-lispy/roc-mode"))
+;;original package:
+;; (package! roc-mode :recipe (:host gitlab :repo "tad-lispy/roc-mode"))
+;;this fork:
+(package! roc-mode :recipe (:host gitlab :repo "AjaiKN/roc-mode"))
 #+end_src
 
-See also [[https://gitlab.com/tad-lispy/nixos-configuration/-/tree/main/doom-emacs/modules/lang/roc][my private module for Roc]] that uses this package.
+*** Recommended configuration for Doom Emacs
+
+Add the following to ~config.el~ (use ~doom/find-file-in-private-config~ typically bound to ~SPC f p~):
+
+#+begin_src emacs-lisp :noeval
+
+(use-package! roc-mode
+  :mode ("\\.roc\\'" . roc-mode)
+  :config
+  (map! :map roc-mode-map
+        (:localleader
+         "f" #'roc-mode-format
+         "b" #'roc-mode-build
+         "t" #'roc-mode-test
+         "r" #'roc-mode-run
+         "d" #'roc-mode-dev
+         "c" #'roc-mode-check))
+
+  ;; Setup the LSP support
+  (when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
+    (require 'lsp-mode)
+    (add-to-list 'lsp-language-id-configuration '(roc-mode . "roc"))
+    (lsp-register-client (make-lsp-client :new-connection (lsp-stdio-connection "roc_language_server")
+                                          :activation-fn (lsp-activate-on "roc")
+                                          :major-modes '(roc-mode)
+                                          :server-id 'roc_ls)))
+  (when (modulep! :tools lsp +eglot)
+    (set-eglot-client! 'roc-mode '("roc_language_server")))
+  (add-hook 'roc-mode-local-vars-hook #'lsp!)
+
+  ;; Formatting
+  (set-formatter! 'roc-format '("roc" "format" "--stdin" "--stdout") :modes '(roc-mode))
+  (setq-hook! 'roc-mode-local-vars-hook
+    +format-with 'roc-format)
+
+  ;; Keywords that should trigger electric indentation
+  (set-electric! 'roc-mode :words '("else"))
+
+  ;; Extra ligatures
+  (when (modulep! :ui ligatures +extra)
+    (set-ligatures! 'roc-mode
+      :true "Bool.true" :false "Bool.false"
+      :not "!"
+      :and "&&" :or "||")
+    (setq-hook! 'roc-mode-hook
+      prettify-symbols-compose-predicate #'+roc-mode-symbol-compose-p)
+    (defun +roc-mode-symbol-compose-p (start end match)
+      "Like `prettify-symbols-default-compose-p', except that if the
+match is !, it checks that it's a logical NOT rather than the !
+suffix operator (syntactic sugar for Task.await; see URL
+  `https://www.roc-lang.org/tutorial#the-!-suffix')."
+      (and (prettify-symbols-default-compose-p start end match)
+           (or (not (equal match "!"))
+               (and
+                ;; character before isn't a word character
+                (not (eq (char-syntax (char-before start))
+                         ?w))
+                ;; character after is a word character or open paren
+                (memq (char-syntax (char-after end))
+                      '(?\( ?w))))))))
+#+end_src
+
+See also [[https://gitlab.com/tad-lispy/nixos-configuration/-/tree/main/doom-emacs/modules/lang/roc][tad-lispy's private module for Roc]].
 
 ** Using straight
 
 #+begin_src emacs-lisp
-(straight-use-package '(roc-mode :type git :host gitlab :repo "tad-lispy/roc-mode"))
+;;original package:
+;; (straight-use-package '(roc-mode :type git :host gitlab :repo "tad-lispy/roc-mode"))
+;;this fork:
+(straight-use-package '(roc-mode :type git :host gitlab :repo "AjaiKN/roc-mode"))
 #+end_src
 
 ** TODO vanilla Emacs
 
-Once the package is published to MELPA, it should be possible to install it with built-in ~install-package~, and ~straight~ shouldn't be a requirement any longer.
+Once the package is published to MELPA, it should be possible to install it with built-in ~install-package~, and ~straight~ shouldn't be a requirement any longer. For now, you can manually clone this repository and add it to your ~load-path~.
+
+*** Basic configuration
+
+Add the following to your ~init.el~:
+
+#+begin_src emacs-lisp :noeval
+
+(use-package! roc-mode
+  :mode ("\\.roc\\'" . roc-mode)
+  :config
+  ;; any configuration goes here (e.g., see below for language server integration)...
+  )
+#+end_src
 
 * Features
 
@@ -46,37 +128,39 @@ Question: Should this be automated?
 
 Relevant discussion: https://lists.gnu.org/archive/html/emacs-devel/2023-11/msg01365.html
 
-** TODO Indentation rules
+** STRT Indentation rules
 
-Can tree sitter be utilized here?
+Tree sitter is used to make some basic indentation rules that aim to be consistent with "roc format", and there are tests to check that consistency. It's still a work in progress, though.
 
 ** TODO Language server integration
 
-*** LSP Mode
+NOTE: If you're using Doom Emacs, the recommended configuration above already supports this.
 
-Add the following to your configuration.
+*** Option 1: Eglot
+
+Emacs 29 comes with a built-in LSP client called Eglot. To integrate with it, add the following to your configuration:
 
 #+begin_src emacs-lisp :noeval
-(require 'roc-mode)
+(with-eval-after-load 'roc-mode
+  (require 'eglot)
+  (add-to-list 'eglot-server-programs '(roc-mode "roc_language_server"))
+  (add-hook 'roc-mode-hook #'eglot-ensure))
+#+end_src
 
-(use-package! lsp-mode
-      :config
-      (roc-mode--lsp-setup))
+*** Option 2: LSP Mode
 
-(defun roc-mode--lsp-setup ()
-  "Setup LSP for Roc. Requires lsp-mode package."
+First, [[https://emacs-lsp.github.io/lsp-mode/page/installation/][install lsp-mode]] if you haven't. Then add the following to your configuration:
+
+#+begin_src emacs-lisp :noeval
+(with-eval-after-load 'roc-mode
+  (require 'lsp-mode)
   (add-to-list 'lsp-language-id-configuration '(roc-mode . "roc"))
   (lsp-register-client (make-lsp-client :new-connection (lsp-stdio-connection "roc_ls")
                                         :activation-fn (lsp-activate-on "roc")
                                         :major-modes '(roc-mode)
                                         :server-id 'roc_ls))
-  (add-hook 'roc-mode-local-vars-hook #'lsp!))
+  (add-hook 'roc-mode-hook #'lsp-deferred))
 #+end_src
-
-*** TODO Eglot
-
-Emacs 29 comes with a built-in LSP client called Eglot. How to integrate with it?
-
 
 * License
 
