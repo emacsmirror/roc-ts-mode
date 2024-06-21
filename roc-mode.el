@@ -166,6 +166,7 @@ to \"roc check\"."
       (insert (string-trim output))
       (kill-ring-save (point-min) (point-max)))))
 
+;; silence warnings about #'roc-repl not necessarily being defined
 (autoload 'roc-repl "roc-repl")
 
 (defvar-keymap roc-mode-map
