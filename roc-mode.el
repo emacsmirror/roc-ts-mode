@@ -174,6 +174,7 @@ to \"roc check\"."
   "C-c C-d" #'roc-mode-dev
   "C-c C-c" #'roc-mode-check)
 
+;;;###autoload
 (define-derived-mode roc-mode prog-mode "Roc"
   "Major mode for the Roc programming language."
   (setq-local comment-start "#"
