@@ -196,6 +196,14 @@ to \"roc check\"."
 (add-to-list 'treesit-language-source-alist
              '(roc . ("https://github.com/faldor20/tree-sitter-roc/")))
 
+;;;###autoload
+(defun roc-mode-install-treesit-grammar ()
+  "Install the tree-sitter grammar for Roc.
+
+Uses `treesit-install-language-grammar'."
+  (interactive)
+  (treesit-install-language-grammar 'roc))
+
 ;;;; Private
 
 (defun roc-mode--run-roc-subcommand (subcommand &optional arguments)
