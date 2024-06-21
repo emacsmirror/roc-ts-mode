@@ -42,7 +42,8 @@ Add the following to ~config.el~ (use ~doom/find-file-in-private-config~ typical
          "t" #'roc-mode-test
          "r" #'roc-mode-run
          "d" #'roc-mode-dev
-         "c" #'roc-mode-check))
+         "c" #'roc-mode-check
+         "e" #'roc-repl))
 
   (set-popup-rule! (rx bol "*roc-repl") :size 0.3)
 
