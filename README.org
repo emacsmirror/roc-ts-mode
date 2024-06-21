@@ -1,7 +1,7 @@
 #+title: Roc Mode
 #+subtitle: Roc programming language mode for Emacs
 
-Roc is a strongly typed functional programming language inspired by Elm, but for variety of platforms. See https://www.roc-lang.org/.
+Roc is a strongly typed functional programming language inspired by Elm, but for variety of platforms. See [[https://www.roc-lang.org/][https://www.roc-lang.org/]].
 
 This is a friendly fork of [[https://gitlab.com/tad-lispy/roc-mode][the original roc-mode]] by [[https://tad-lispy.com/][tad-lispy]].
 
