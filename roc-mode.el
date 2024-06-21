@@ -157,6 +157,15 @@ to \"roc check\"."
   (interactive (list (unless current-prefix-arg (buffer-file-name))))
   (roc-mode--run-roc-subcommand "check" (and file (list file))))
 
+(defun roc-mode-version ()
+  "Print the current version of Roc and save it to the kill ring."
+  (interactive)
+  (let ((output (shell-command-to-string (format "%s version" (shell-quote-argument roc-mode-program)))))
+    (message (string-trim output))
+    (with-temp-buffer
+      (insert (string-trim output))
+      (kill-ring-save (point-min) (point-max)))))
+
 (defvar-keymap roc-mode-map
   "C-c C-f" #'roc-mode-format
   "C-c C-b" #'roc-mode-build
