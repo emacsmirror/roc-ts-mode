@@ -166,14 +166,14 @@ First, [[https://emacs-lsp.github.io/lsp-mode/page/installation/][install lsp-mo
 
 You can use the following keybindings to run Roc CLI commands.
 
-| Default keybinding | Emacs command     | CLI command  | Desc                                                   |
-|--------------------+-------------------+--------------+--------------------------------------------------------|
-| ~C-c C-f~          | ~roc-mode-format~ | ~roc format~ | Format the current buffer                              |
-| ~C-c C-b~          | ~roc-mode-build~  | ~roc build~  | Build the current file                                 |
-| ~C-c C-t~          | ~roc-mode-test~   | ~roc test~   | Test the current file                                  |
-| ~C-c C-r~          | ~roc-mode-run~    | ~roc run~    | Run tests in the current file (and modules it imports) |
-| ~C-c C-d~          | ~roc-mode-dev~    | ~roc dev~    | Check current file, then run if no errors              |
-| ~C-c C-c~          | ~roc-mode-check~  | ~roc check~  | Check current file for errors                          |
+| Default keybinding | Emacs ~roc-mode~ command | CLI command  | Description                                            |
+|--------------------+--------------------------+--------------+--------------------------------------------------------|
+| ~C-c C-f~          | ~roc-mode-format~        | ~roc format~ | Format the current buffer                              |
+| ~C-c C-b~          | ~roc-mode-build~         | ~roc build~  | Build the current file                                 |
+| ~C-c C-t~          | ~roc-mode-test~          | ~roc test~   | Test the current file                                  |
+| ~C-c C-r~          | ~roc-mode-run~           | ~roc run~    | Run tests in the current file (and modules it imports) |
+| ~C-c C-d~          | ~roc-mode-dev~           | ~roc dev~    | Check current file, then run if no errors              |
+| ~C-c C-c~          | ~roc-mode-check~         | ~roc check~  | Check current file for errors                          |
 
 * License
 
