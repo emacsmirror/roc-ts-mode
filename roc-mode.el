@@ -61,11 +61,6 @@ run."
   :type 'function
   :group 'roc)
 
-(defcustom roc-mode-format-use-apheleia-if-available t
-  "Whether to use `apheleia' for `roc-mode-format' if installed."
-  :type 'boolean
-  :group 'roc)
-
 (defcustom roc-mode-format-replace-buffer-contents-max-secs 3
   "See the second argument of `replace-buffer-contents'."
   :type '(choice
@@ -108,14 +103,6 @@ files in the current directory."
             (with-current-buffer buffer
               (when (and (derived-mode-p 'roc-mode buffer-file-name))
                 (revert-buffer t))))))))
-   ((and roc-mode-format-use-apheleia-if-available
-         (require 'apheleia nil 'noerror)
-         (boundp 'apheleia-formatters)
-         (fboundp 'apheleia-format-buffer))
-    (when (null (alist-get 'roc-format apheleia-formatters))
-      (setf (alist-get 'roc-format apheleia-formatters)
-            `(,roc-mode-program "format" "--stdin" "--stdout")))
-    (apheleia-format-buffer 'roc-format))
    (t
     (with-temp-buffer
       (let ((temp-buffer (current-buffer)))
