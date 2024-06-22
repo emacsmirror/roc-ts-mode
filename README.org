@@ -48,7 +48,9 @@ Add the following to ~config.el~ (use ~doom/find-file-in-private-config~ typical
 
   (set-popup-rule! (rx bol "*roc-repl") :size 0.3)
 
-  ;; Setup the LSP support
+  ;; Setup the LSP support:
+  ;; For this to work, you'll need roc_language_server, which is distributed in
+  ;; Roc releases, in your PATH.
   (when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
     (require 'lsp-mode)
     (add-to-list 'lsp-language-id-configuration '(roc-mode . "roc"))
@@ -144,6 +146,8 @@ Tree sitter is used to make some basic indentation rules that aim to be consiste
 
 NOTE: If you're using Doom Emacs, the recommended configuration above already supports this.
 
+You'll need ~roc_language_server~, which is distributed in Roc releases, in your ~PATH~.
+
 *** Option 1: Eglot
 
 Emacs 29 comes with a built-in LSP client called Eglot. To integrate with it, add the following to your configuration:
@@ -184,6 +188,8 @@ You can use the following keybindings to run Roc CLI commands.
 | ~C-c C-c~          | ~roc-mode-check~         | ~roc check~   | Check current file for errors                          |
 | ~C-c C-e~          | ~roc-mode-repl~         | ~roc repl~   | Open a Roc REPL buffer    |
 | N/A                | ~roc-mode-version~       | ~roc version~ | Print and copy the current version of Roc              |
+
+If the ~roc~ CLI isn't on your ~PATH~, you can set ~roc-mode-program~ to the right executable path.
 
 ** Navigation
 
