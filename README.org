@@ -185,6 +185,13 @@ You can use the following keybindings to run Roc CLI commands.
 | ~C-c C-e~          | ~roc-mode-repl~         | ~roc repl~   | Open a Roc REPL buffer    |
 | N/A                | ~roc-mode-version~       | ~roc version~ | Print and copy the current version of Roc              |
 
+** Navigation
+
+Commands like ~beginning-of-defun~ (~C-M-a~ by default), ~end-of-defun~ (~C-M-e~), and ~mark-defun~ (~C-M-h~) are supported.
+In Doom Emacs, that also means you can use the ~f~ text object (e.g., use ~d i f~ to delete the current function).
+
+[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Imenu.html][imenu]] (~M-g i~) is also supported.
+
 * License
 
 GPLv3

@@ -415,6 +415,32 @@ This is passed to `treesit-font-lock-rules' and assigned to
 
 This is assigned to an entry of `treesit-simple-indent-rules'.")
 
+(defvar roc-mode--ts-simple-imenu-settings
+  `(("Definition" ,(rx bos "value_declaration" eos) nil nil)
+    ("Type alias" ,(rx bos "alias_type_def" eos) nil nil)
+    ("Opaque type" ,(rx bos "opaque_type_def" eos) nil nil))
+  "Rules for finding `imenu' entries in Roc code based on tree-sitter.")
+
+(defun roc-mode--ts-defun-p (node)
+  "Return non-nil if NODE is a value declaration or a top-level construct in Roc.
+
+This is used as the `cdr' of `treesit-defun-type-regexp'."
+  (or (equal (treesit-node-type node) "value_declaration")
+      (string-match-p (rx "type_def") (treesit-node-type node))
+      (equal (treesit-node-type (treesit-node-parent node)) "file")))
+
+(defun roc-mode--ts-defun-name (node)
+  "Return the name of the type or value being declared at NODE in Roc.
+
+If NODE is not a defun or has no name, return nil.
+
+This is assigned to `treesit-defun-name-function'."
+  (cond
+   ((equal (treesit-node-type node) "value_declaration")
+    (treesit-node-text (treesit-node-child (car (treesit-filter-child node (lambda (n) (equal (treesit-node-type n) "decl_left")))) 0) 0))
+   ((string-match-p (rx "type_def") (treesit-node-type node))
+    (treesit-node-text (treesit-node-child (treesit-node-child node 0) 0)))))
+
 (defun roc-mode--ts-setup ()
   "Setup Tree Sitter for the Roc mode."
 
@@ -428,6 +454,10 @@ This is assigned to an entry of `treesit-simple-indent-rules'.")
                 (keywords strings string-escapes types type-variables tag-types)
                 (numbers)
                 (record-field-declaration record-field-access function-calls tags variable-use modules operators boolean-negation delimiters brackets arrows lambdas assignments)))
+
+  (setq-local treesit-defun-type-regexp (cons "" #'roc-mode--ts-defun-p)
+              treesit-defun-name-function #'roc-mode--ts-defun-name
+              treesit-simple-imenu-settings roc-mode--ts-simple-imenu-settings)
 
   (setf (alist-get 'roc treesit-simple-indent-rules)
         roc-mode--ts-indent-rules)
