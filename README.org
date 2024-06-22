@@ -198,6 +198,8 @@ In Doom Emacs, that also means you can use the ~f~ text object (e.g., use ~d i f
 
 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Imenu.html][imenu]] (~M-g i~) is also supported.
 
+Tree-sitter-based code folding is supported using the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Hideshow.html][Hideshow minor mode]].
+
 * License
 
 GPLv3

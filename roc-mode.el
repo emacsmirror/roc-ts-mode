@@ -34,6 +34,8 @@
 
 
 (require 'treesit)
+(require 'hideshow)
+(require 'newcomment)
 (eval-when-compile
   (require 'cl-lib))
 
@@ -463,6 +465,42 @@ This is assigned to `treesit-defun-name-function'."
         roc-mode--ts-indent-rules)
 
   (treesit-major-mode-setup))
+
+;;;; Hideshow
+(defconst roc-mode--next-line-further-indent-regex
+  (rx (or "=" "[" "{" "(" "->" ":" "expect-fx"
+          (seq word-start
+               (or "is" "then" "else" "expect" "where" "dbg" "app" "package" "platform" "module" "exposes" "imports" "import" "with" "packages" "requires" "provides")
+               word-end))
+      (*? (syntax whitespace))
+      (? "#" (* not-newline))
+      eol)
+  "A regex matching lines where the next line should probably be indented further.")
+
+(setf (alist-get 'roc-mode hs-special-modes-alist)
+      `(,roc-mode--next-line-further-indent-regex ;START
+        ""                                        ;END
+        ,(rx "#")                                 ;COMMENT-START
+        roc-mode--hideshow-end-of-block           ;FORWARD-SEXP-FUNC
+        nil                                       ;ADJUST-BEG-FUNC
+        nil                                       ;FIND-BLOCK-BEGINNING-FUNC
+        nil                                       ;FIND-NEXT-BLOCK-FUNC
+        roc-mode--hideshow-block-start-p))        ;LOOKING-AT-BLOCK-START-P-FUNC
+
+(defun roc-mode--hideshow-end-of-block (_arg)
+  ""
+  (let ((started-with-bracket-p (looking-at-p (rx (any "[{("))))
+        (node (treesit-node-at (point))))
+    (goto-char (treesit-node-end (treesit-node-parent node)))
+    (when (and started-with-bracket-p (memq (char-before) '(?\) ?\] ?\})))
+      (backward-char))))
+
+(defun roc-mode--hideshow-block-start-p ()
+  ""
+  (and (hs-looking-at-block-start-p)
+       (not
+        (equal (treesit-node-type (treesit-node-at (point)))
+               "line_comment"))))
 
 ;;;; Footer
 
