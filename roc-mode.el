@@ -37,11 +37,26 @@
 
 (require 'treesit)
 
+;;;;; Custom variables
+
+(defgroup roc nil
+  "Major mode for the Roc programming language."
+  :group 'languages)
+
+(defcustom roc-mode-indent-offset 4
+  "The basic indentation offset in `roc-mode'."
+  :type 'natnum
+  :group 'roc)
+
 ;;;;; Commands
 
 (define-derived-mode roc-mode prog-mode "Roc"
   "Major mode for the Roc programming language"
-  (setq-local comment-start "#")
+  (setq-local comment-start "#"
+              comment-start-skip (rx (one-or-more "#") (zero-or-more blank))
+              comment-column 0
+              indent-tabs-mode nil
+              tab-width roc-mode-indent-offset)
   (when (treesit-ready-p 'roc)
     (treesit-parser-create 'roc)
     (roc-mode--ts-setup)))
@@ -227,6 +242,33 @@
 This is passed to `treesit-font-lock-rules' and assigned to
 `treesit-font-lock-settings' in `roc-mode--ts-setup'.")
 
+(defvar roc-mode--ts-indent-rules
+  `(;; The app header should be in the first column:
+    ((node-is ,(rx bos "app_header" eos)) column-0 0)
+    ;; Node types that should be at the same indentation level as their parents:
+    ;; - closing brackets
+    ((n-p-gp ,(rx (or "]" "}" ")")) nil nil) parent-bol 0)
+    ;; - | in a pattern match
+    ((n-p-gp ,(rx bos "|" eos) "disjunct_pattern" nil) parent-bol 0)
+    ;; - all top-level things
+    ((parent-is "file") parent-bol 0)
+    ;; - type annotations and the LHS of value declarations
+    ((n-p-gp ,(rx bos "annotation_type_def" eos) ,(rx bos "value_declaration" eos) nil) parent-bol 0)
+    ((n-p-gp ,(rx bos "decl_left" eos) ,(rx bos "value_declaration" eos) nil) parent-bol 0)
+    ;; - else, else if, then
+    ((n-p-gp ,(rx bos (or "else" "else_if" "then") eos) "if_expr" nil) parent-bol 0)
+    ;; - binary operators
+    ((parent-is ,(rx bos "bin_op_expr" eos)) parent-bol 0)
+    ;; - function types
+    ((parent-is ,(rx bos "function_type" eos)) parent-bol 0)
+    ;; - type arguments
+    ((n-p-gp nil ,(rx bos "apply_type_args" eos) ,(rx bos "apply_type" eos)) parent-bol 0)
+    ;; Everything else should be indented one level further then its parent:
+    (catch-all parent-bol roc-mode-indent-offset))
+  "Rules for indenting Roc code based on tree-sitter.
+
+This is assigned to an entry of `treesit-simple-indent-rules'.")
+
 (defun roc-mode--ts-setup ()
   "Setup Tree Sitter for the Roc mode"
 
@@ -240,6 +282,9 @@ This is passed to `treesit-font-lock-rules' and assigned to
                 (keywords strings string-escapes types type-variables tag-types)
                 (numbers)
                 (record-field-declaration record-field-access function-calls tags variable-use modules operators boolean-negation delimiters brackets arrows lambdas assignments)))
+
+  (setf (alist-get 'roc treesit-simple-indent-rules)
+        roc-mode--ts-indent-rules)
 
   (treesit-major-mode-setup))
 
