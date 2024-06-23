@@ -398,6 +398,8 @@ This is passed to `treesit-font-lock-rules' and assigned to
     ;; Node types that should be at the same indentation level as their parents:
     ;; - closing brackets
     ((n-p-gp ,(rx (or "]" "}" ")")) nil nil) parent-bol 0)
+    ;; - | in a pattern match
+    ((n-p-gp ,(rx bos "|" eos) "disjunct_pattern" nil) parent-bol 0)
     ;; - all top-level things
     ((parent-is "file") parent-bol 0)
     ;; - type annotations and the LHS of value declarations

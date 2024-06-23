@@ -159,3 +159,30 @@ toJson = \val ->
     val
     |> Encode.toBytes JSON.encoder
 =-=-=
+
+Name: or-pattern
+=-=
+app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+
+f : Something -> Something
+f = \z ->
+    when List.get nfa stateInd is
+        Ok (A b c) -> A c b
+        Ok U64
+        | Ok U64
+        | Err U64 -> Ok 32
+=-=-=
+
+Name: or-pattern2
+=-=
+app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+
+f : Something -> Something
+f = \z ->
+    when List.get nfa stateInd is
+        Ok (A b c) -> A c b
+        Ok U64
+        | Ok U64
+        | Err U64 ->
+            Ok 32
+=-=-=
