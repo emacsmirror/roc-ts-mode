@@ -417,6 +417,80 @@ This is passed to `treesit-font-lock-rules' and assigned to
 
 This is assigned to an entry of `treesit-simple-indent-rules'.")
 
+(defconst roc-mode--next-line-further-indent-regex
+  (rx (group
+       (or "=" "[" "{" "(" "->" ":" "expect-fx"
+           (seq word-start
+                (or "is" "then" "else" "expect" "where" "dbg" "app" "package" "platform" "module" "exposes" "imports" "import" "with" "packages" "requires" "provides")
+                word-end)))
+      (*? (syntax whitespace))
+      (? "#" (* not-newline))
+      eol)
+  "A regex matching lines where the next line should probably be indented further.")
+
+(defun roc-mode--last-nonblank-line ()
+  "Go to the previous line, and keep going until we get to a non-blank one."
+  (forward-line -1)
+  (while (string-match-p (rx bol (* blank) eol)
+                         (buffer-substring (pos-bol) (pos-eol)))
+    (forward-line -1)))
+
+(defun roc-mode--line-string ()
+  "Return the current line as a string."
+  (buffer-substring (pos-bol) (pos-eol)))
+
+(defun roc-mode--line-match (regex)
+  "Does the current line match this REGEX? Save match data."
+  (string-match regex (roc-mode--line-string)))
+
+(defun roc-mode--line-match-p (regex)
+  "Does the current line match this REGEX? Don't save match data."
+  (string-match-p regex (roc-mode--line-string)))
+
+(defun roc-mode--line-indent-level ()
+  "Return column where the text of the current line begins."
+  (progn (beginning-of-line-text)
+         (current-column)))
+
+(defun roc-mode--indent-line ()
+  "Like `treesit-indent', but handle some cases it gets wrong for Roc."
+  (if-let* ((target-indent-level
+             (or
+              ;; When typing "else" at the wrong indentation level
+              (ignore-errors
+                (save-excursion
+                  (when (roc-mode--line-match-p (rx bol (* blank) "else" word-end))
+                    (let ((num-ifs 0)
+                          (num-elses 0))
+                      (while (<= num-ifs num-elses)
+                        (when (eq (roc-mode--line-indent-level) 0)
+                          (error "roc-mode--indent-line: Can't find a matching if"))
+                        (forward-line -1)
+                        (when (roc-mode--line-match-p (rx word-start "if" word-end))
+                          (cl-incf num-ifs))
+                        (when (roc-mode--line-match-p (rx word-start "else" word-end))
+                          (cl-incf num-elses)))
+                      (roc-mode--line-indent-level)))))
+              ;; When the last line ends with things in `roc-mode--next-line-further-indent-regex'
+              ;; (like "->" or "[when ...] is").
+              (ignore-errors
+                (save-excursion
+                  ;; Go back to last non-blank line
+                  (roc-mode--last-nonblank-line)
+                  (and (roc-mode--line-match roc-mode--next-line-further-indent-regex)
+                       (progn
+                         ;; Shouldn't be in a comment
+                         (goto-char (+ (pos-bol) (match-beginning 0)))
+                         (not (equal (treesit-node-type (treesit-node-at (point)))
+                                     "line_comment")))
+                       ;; 4 + indent level of this line
+                       (+ (roc-mode--line-indent-level)
+                          roc-mode-indent-offset)))))))
+      (let ((position-within-line-text (- (point) (save-excursion (beginning-of-line-text) (point)))))
+        (indent-line-to target-indent-level)
+        (forward-char position-within-line-text))
+    (treesit-indent)))
+
 (defvar roc-mode--ts-simple-imenu-settings
   `(("Definition" ,(rx bos "value_declaration" eos) nil nil)
     ("Type alias" ,(rx bos "alias_type_def" eos) nil nil)
@@ -464,19 +538,11 @@ This is assigned to `treesit-defun-name-function'."
   (setf (alist-get 'roc treesit-simple-indent-rules)
         roc-mode--ts-indent-rules)
 
-  (treesit-major-mode-setup))
+  (treesit-major-mode-setup)
+
+  (setq indent-line-function #'roc-mode--indent-line))
 
 ;;;; Hideshow
-(defconst roc-mode--next-line-further-indent-regex
-  (rx (or "=" "[" "{" "(" "->" ":" "expect-fx"
-          (seq word-start
-               (or "is" "then" "else" "expect" "where" "dbg" "app" "package" "platform" "module" "exposes" "imports" "import" "with" "packages" "requires" "provides")
-               word-end))
-      (*? (syntax whitespace))
-      (? "#" (* not-newline))
-      eol)
-  "A regex matching lines where the next line should probably be indented further.")
-
 (setf (alist-get 'roc-mode hs-special-modes-alist)
       `(,roc-mode--next-line-further-indent-regex ;START
         ""                                        ;END
