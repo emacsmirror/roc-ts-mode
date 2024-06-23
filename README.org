@@ -44,7 +44,12 @@ Add the following to ~config.el~ (use ~doom/find-file-in-private-config~ typical
          "r" #'roc-mode-run
          "d" #'roc-mode-dev
          "c" #'roc-mode-check
-         "e" #'roc-repl))
+         "e" #'roc-repl
+         (:prefix ("s" . "roc-start")
+           "f" #'roc-start-fetch
+           "a" #'roc-start-app
+           "p" #'roc-start-pkg
+           "u" #'roc-start-update)))
 
   (set-popup-rule! (rx bol "*roc-repl") :size 0.3)
 
@@ -186,10 +191,19 @@ You can use the following keybindings to run Roc CLI commands.
 | ~C-c C-r~          | ~roc-mode-run~           | ~roc run~     | Run tests in the current file (and modules it imports) |
 | ~C-c C-d~          | ~roc-mode-dev~           | ~roc dev~     | Check current file, then run if no errors              |
 | ~C-c C-c~          | ~roc-mode-check~         | ~roc check~   | Check current file for errors                          |
-| ~C-c C-e~          | ~roc-mode-repl~         | ~roc repl~   | Open a Roc REPL buffer    |
+| ~C-c C-e~          | ~roc-repl~               | ~roc repl~    | Open a Roc REPL buffer                                 |
 | N/A                | ~roc-mode-version~       | ~roc version~ | Print and copy the current version of Roc              |
 
 If the ~roc~ CLI isn't on your ~PATH~, you can set ~roc-mode-program~ to the right executable path.
+
+To use the experimental ~roc-start-...~ commands, [[https://github.com/imclerran/roc-start][~roc-start~]] must be installed:
+
+| Default keybinding | Emacs ~roc-start~ command | CLI command              | Description                                             |
+|--------------------+---------------------------+--------------------------+---------------------------------------------------------|
+| ~C-c C-s C-f~      | ~roc-start-fetch~         | ~roc-start update -k -f~ | Fetch the latest packages and platforms for ~roc-start~ |
+| ~C-c C-s C-a~      | ~roc-start-app~           | ~roc-start app~          | Start a new Roc app with ~roc-start~                    |
+| ~C-c C-s C-p~      | ~roc-start-pkg~           | ~roc-start repl~         | Start a new Roc package with ~roc-start~                |
+| ~C-c C-s C-u~      | ~roc-start-update~        | ~roc-start update~       | Update all dependencies using ~roc-start~               |
 
 ** Navigation
 
