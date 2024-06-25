@@ -109,7 +109,11 @@
     ;; escapes
     (modify-syntax-entry ?\$ "\\" table)
 
-    ;; not sure whether this should count as an escape ("\\") or an operator (".")
+    ;; A backslash is sometimes an escape ("\\") when it's in a string,
+    ;; but when it's a lambda, it should just count as punctuation (".").
+    ;; If we designated it an escape, Emacs would get confused
+    ;; by destructing lambdas (for example, \{} -> 3) because it
+    ;; would think the backslash escaped the opening brace.
     (modify-syntax-entry ?\\ "." table)
 
     ;; punctuation
