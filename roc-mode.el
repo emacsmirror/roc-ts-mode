@@ -59,7 +59,6 @@
 (autoload 'roc-check "roc-cli")
 (autoload 'roc-version "roc-cli")
 (autoload 'roc-repl "roc-repl")
-(autoload 'roc-start-fetch "roc-start")
 (autoload 'roc-start-app "roc-start")
 (autoload 'roc-start-pkg "roc-start")
 (autoload 'roc-start-update "roc-start")
@@ -72,7 +71,6 @@
   "C-c C-d" #'roc-dev
   "C-c C-c" #'roc-check
   "C-c C-e" #'roc-repl
-  "C-c C-s C-f" #'roc-start-fetch
   "C-c C-s C-a" #'roc-start-app
   "C-c C-s C-p" #'roc-start-pkg
   "C-c C-s C-u" #'roc-start-update)

@@ -40,11 +40,6 @@
   :type 'file
   :group 'roc)
 
-(defcustom roc-start-update-skip-prompt nil
-  "If non-nil, `roc-start-update' will not prompt."
-  :type 'boolean
-  :group 'roc)
-
 ;; TODO: actually parse the rvn
 (defun roc-start--read-file-repos (filename)
   "Parse the list of \"repo\"s from the given rvn FILENAME."
@@ -73,7 +68,7 @@
   "Print an error if the given FILES can't be found."
   (dolist (file files)
     (when (not (file-exists-p file))
-      (user-error "File %s doesn't exist. Please run `M-x roc-start-fetch'" file))))
+      (user-error "File %s doesn't exist. Please run `M-x roc-start-update'" file))))
 
 (defun roc-start--run-cmd (subcmd &rest arguments)
   "Run the command \"roc-start SUBCMD ...ARGUMENTS\" synchronously.
@@ -129,21 +124,11 @@ PACKAGES is a list of Roc packages (dependencies of the new package)."
 (defalias 'roc-start-package #'roc-start-pkg)
 
 ;;;###autoload
-(defun roc-start-fetch ()
-  "EXPERIMENTAL: Fetch the latest packages and platforms."
+(defun roc-start-update ()
+  "EXPERIMENTAL: Fetch the latest packages, platforms, and app stubs."
   (interactive)
   (roc-start--ensure-executable-present)
-  (compile "roc-start update --packages --platforms"))
-
-;;;###autoload
-(defun roc-start-update ()
-  "EXPERIMENTAL: Update all dependencies (platforms/packages) of the current dir.
-
-Also see `roc-start-update-skip-prompt'."
-  (interactive "p")
-  (roc-start--ensure-executable-present)
-  (when (or roc-start-update-skip-prompt (y-or-n-p "Update all dependencies? "))
-    (compile "roc-start update")))
+  (compile "roc-start update"))
 
 (provide 'roc-start)
 ;;; roc-start.el ends here
