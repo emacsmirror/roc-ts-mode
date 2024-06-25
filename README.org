@@ -20,10 +20,7 @@ Requirements: Emacs 29.1+.
 Add the following to ~packages.el~ (use ~doom/find-file-in-private-config~ typically bound to ~SPC f p~):
 
 #+begin_src emacs-lisp :noeval
-;;original package:
-;; (package! roc-mode :recipe (:host gitlab :repo "tad-lispy/roc-mode"))
-;;this fork:
-(package! roc-mode :recipe (:host gitlab :repo "AjaiKN/roc-mode"))
+(package! roc-mode :recipe (:host gitlab :repo "tad-lispy/roc-mode"))
 #+end_src
 
 Then, run ~M-x roc-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
@@ -104,10 +101,7 @@ See also [[https://gitlab.com/tad-lispy/nixos-configuration/-/tree/main/doom-ema
 ** Using straight
 
 #+begin_src emacs-lisp
-;;original package:
-;; (straight-use-package '(roc-mode :type git :host gitlab :repo "tad-lispy/roc-mode"))
-;;this fork:
-(straight-use-package '(roc-mode :type git :host gitlab :repo "AjaiKN/roc-mode"))
+(straight-use-package '(roc-mode :type git :host gitlab :repo "tad-lispy/roc-mode"))
 #+end_src
 
 Then, run ~M-x roc-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
