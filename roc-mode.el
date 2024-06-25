@@ -555,16 +555,16 @@ This is assigned to `treesit-defun-name-function'."
 ;;;; Hideshow
 (setf (alist-get 'roc-mode hs-special-modes-alist)
       `(,roc--next-line-further-indent-regex ;START
-        ""                                        ;END
-        ,(rx "#")                                 ;COMMENT-START
+        ""                                   ;END
+        ,(rx "#")                            ;COMMENT-START
         roc--hideshow-end-of-block           ;FORWARD-SEXP-FUNC
-        nil                                       ;ADJUST-BEG-FUNC
-        nil                                       ;FIND-BLOCK-BEGINNING-FUNC
-        nil                                       ;FIND-NEXT-BLOCK-FUNC
+        nil                                  ;ADJUST-BEG-FUNC
+        nil                                  ;FIND-BLOCK-BEGINNING-FUNC
+        nil                                  ;FIND-NEXT-BLOCK-FUNC
         roc--hideshow-block-start-p))        ;LOOKING-AT-BLOCK-START-P-FUNC
 
 (defun roc--hideshow-end-of-block (_arg)
-  ""
+  "Go to the end of the current block that should be folded."
   (let ((started-with-bracket-p (looking-at-p (rx (any "[{("))))
         (node (treesit-node-at (point))))
     (goto-char (treesit-node-end (treesit-node-parent node)))
@@ -572,7 +572,10 @@ This is assigned to `treesit-defun-name-function'."
       (backward-char))))
 
 (defun roc--hideshow-block-start-p ()
-  ""
+  "Are we at the start of a foldable block?
+
+This function is like `hs-looking-at-block-start-p', except we
+check that we're not in a line comment."
   (and (hs-looking-at-block-start-p)
        (not
         (equal (treesit-node-type (treesit-node-at (point)))
