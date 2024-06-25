@@ -75,6 +75,50 @@
   "C-c C-s C-p" #'roc-start-pkg
   "C-c C-s C-u" #'roc-start-update)
 
+(defvar roc-mode-syntax-table
+  (let ((table (make-syntax-table)))
+    ;; comments "# ...\n"
+    (modify-syntax-entry ?\# "<" table)
+    (modify-syntax-entry ?\n ">" table)
+
+    ;; spaces
+    (modify-syntax-entry ?\s " " table)
+    (modify-syntax-entry ?\t " " table)
+
+    ;; strings
+    (modify-syntax-entry ?\" "\"" table)
+    ;; characters (can be treated as strings)
+    (modify-syntax-entry ?\' "\"" table)
+
+    ;; parens
+    (modify-syntax-entry ?\( "()" table)
+    (modify-syntax-entry ?\) ")(" table)
+    (modify-syntax-entry ?\{ "(}" table)
+    (modify-syntax-entry ?\} "({" table)
+    (modify-syntax-entry ?\[ "(]" table)
+    (modify-syntax-entry ?\] ")[" table)
+
+    ;; part of symbol
+    (modify-syntax-entry ?\_ "_" table)
+
+    ;; unused
+    (modify-syntax-entry ?\` "@" table)
+    (modify-syntax-entry ?\; "@" table)
+    (modify-syntax-entry ?\~ "@" table)
+
+    ;; escapes
+    (modify-syntax-entry ?\$ "\\" table)
+
+    ;; not sure whether this should count as an escape ("\\") or an operator (".")
+    (modify-syntax-entry ?\\ "." table)
+
+    ;; punctuation
+    (mapc (lambda (x)
+            (modify-syntax-entry x "." table))
+          "^%!&|*+,-./:<=>?@")
+
+    table))
+
 ;;;###autoload
 (define-derived-mode roc-mode prog-mode "Roc"
   "Major mode for the Roc programming language."
@@ -436,11 +480,7 @@ This is assigned to `treesit-defun-name-function'."
       `(,roc--next-line-further-indent-regex ;START
         ""                                   ;END
         ,(rx "#")                            ;COMMENT-START
-        roc--hideshow-end-of-block           ;FORWARD-SEXP-FUNC
-        nil                                  ;ADJUST-BEG-FUNC
-        nil                                  ;FIND-BLOCK-BEGINNING-FUNC
-        nil                                  ;FIND-NEXT-BLOCK-FUNC
-        roc--hideshow-block-start-p))        ;LOOKING-AT-BLOCK-START-P-FUNC
+        roc--hideshow-end-of-block))         ;FORWARD-SEXP-FUNC
 
 (defun roc--hideshow-end-of-block (_arg)
   "Go to the end of the current block that should be folded."
@@ -449,16 +489,6 @@ This is assigned to `treesit-defun-name-function'."
     (goto-char (treesit-node-end (treesit-node-parent node)))
     (when (and started-with-bracket-p (memq (char-before) '(?\) ?\] ?\})))
       (backward-char))))
-
-(defun roc--hideshow-block-start-p ()
-  "Are we at the start of a foldable block?
-
-This function is like `hs-looking-at-block-start-p', except we
-check that we're not in a line comment."
-  (and (hs-looking-at-block-start-p)
-       (not
-        (equal (treesit-node-type (treesit-node-at (point)))
-               "line_comment"))))
 
 ;;;; Footer
 
