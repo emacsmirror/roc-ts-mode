@@ -1,8 +1,7 @@
 #+title: Roc Mode
 #+subtitle: Roc programming language mode for Emacs
 
-Roc is a strongly typed functional programming language inspired by Elm, but for variety of platforms. See https://www.roc-lang.org/.
-
+Roc is a strongly typed functional programming language inspired by Elm, but for variety of platforms. See [[https://www.roc-lang.org/][https://www.roc-lang.org/]].
 
 * Disclaimer
 
@@ -12,7 +11,7 @@ This code is an early work in progress and I am a novice at Emacs Lisp. Polite s
 
 Currently only installation from the Git repository is possible.
 
-Requirements: Emacs 29.1+ with the [[https://github.com/radian-software/straight.el][Straight]] package manager.
+Requirements: Emacs 29.1+.
 
 ** In Doom Emacs
 
@@ -22,7 +21,80 @@ Add the following to ~packages.el~ (use ~doom/find-file-in-private-config~ typic
 (package! roc-mode :recipe (:host gitlab :repo "tad-lispy/roc-mode"))
 #+end_src
 
-See also [[https://gitlab.com/tad-lispy/nixos-configuration/-/tree/main/doom-emacs/modules/lang/roc][my private module for Roc]] that uses this package.
+Then, run ~M-x roc-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
+
+*** Recommended configuration for Doom Emacs
+
+Add the following to ~config.el~ (use ~doom/find-file-in-private-config~ typically bound to ~SPC f p~):
+
+#+begin_src emacs-lisp :noeval
+(use-package! roc-mode
+  :mode ("\\.roc\\'" . roc-mode)
+  :config
+  (map! :map roc-mode-map
+        (:localleader
+         "f" #'roc-format
+         "b" #'roc-build
+         "t" #'roc-test
+         "r" #'roc-run
+         "d" #'roc-dev
+         "c" #'roc-check
+         "e" #'roc-repl
+         (:prefix ("s" . "roc-start")
+           "f" #'roc-start-fetch
+           "a" #'roc-start-app
+           "p" #'roc-start-pkg
+           "u" #'roc-start-update)))
+
+  (set-popup-rule! (rx bol "*roc-repl") :size 0.3)
+
+  ;; Setup the LSP support:
+  ;; For this to work, you'll need roc_language_server, which is distributed in
+  ;; Roc releases, in your PATH.
+  (when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
+    (require 'lsp-mode)
+    (add-to-list 'lsp-language-id-configuration '(roc-mode . "roc"))
+    (lsp-register-client (make-lsp-client :new-connection (lsp-stdio-connection "roc_language_server")
+                                          :activation-fn (lsp-activate-on "roc")
+                                          :major-modes '(roc-mode)
+                                          :server-id 'roc_ls)))
+  (when (modulep! :tools lsp +eglot)
+    (set-eglot-client! 'roc-mode '("roc_language_server")))
+  (add-hook 'roc-mode-local-vars-hook #'lsp!)
+
+  ;; Formatting
+  (set-formatter! 'roc-format '("roc" "format" "--stdin" "--stdout") :modes '(roc-mode))
+  (setq-hook! 'roc-mode-local-vars-hook
+    +format-with 'roc-format)
+
+  ;; Keywords that should trigger electric indentation
+  (set-electric! 'roc-mode :words '("else"))
+
+  ;; Extra ligatures
+  (when (modulep! :ui ligatures +extra)
+    (set-ligatures! 'roc-mode
+      :true "Bool.true" :false "Bool.false"
+      :not "!"
+      :and "&&" :or "||")
+    (setq-hook! 'roc-mode-hook
+      prettify-symbols-compose-predicate #'+roc-symbol-compose-p)
+    (defun +roc-symbol-compose-p (start end match)
+      "Like `prettify-symbols-default-compose-p', except that if the
+match is !, it checks that it's a logical NOT rather than the !
+suffix operator (syntactic sugar for Task.await; see URL
+  `https://www.roc-lang.org/tutorial#the-!-suffix')."
+      (and (prettify-symbols-default-compose-p start end match)
+           (or (not (equal match "!"))
+               (and
+                ;; character before isn't a word character
+                (not (eq (char-syntax (char-before start))
+                         ?w))
+                ;; character after is a word character or open paren
+                (memq (char-syntax (char-after end))
+                      '(?\( ?w))))))))
+#+end_src
+
+See also [[https://gitlab.com/tad-lispy/nixos-configuration/-/tree/main/doom-emacs/modules/lang/roc][tad-lispy's private module for Roc]].
 
 ** Using straight
 
@@ -30,9 +102,26 @@ See also [[https://gitlab.com/tad-lispy/nixos-configuration/-/tree/main/doom-ema
 (straight-use-package '(roc-mode :type git :host gitlab :repo "tad-lispy/roc-mode"))
 #+end_src
 
+Then, run ~M-x roc-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
+
 ** TODO vanilla Emacs
 
-Once the package is published to MELPA, it should be possible to install it with built-in ~install-package~, and ~straight~ shouldn't be a requirement any longer.
+Once the package is published to MELPA, it should be possible to install it with built-in ~install-package~, and ~straight~ shouldn't be a requirement any longer. For now, you can manually clone this repository and add it to your ~load-path~.
+
+Then, run ~M-x roc-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
+
+*** Basic configuration
+
+Add the following to your ~init.el~:
+
+#+begin_src emacs-lisp :noeval
+
+(use-package roc-mode
+  :mode ("\\.roc\\'" . roc-mode)
+  :config
+  ;; any configuration goes here (e.g., see below for language server integration)...
+  )
+#+end_src
 
 * Features
 
@@ -46,37 +135,76 @@ Question: Should this be automated?
 
 Relevant discussion: https://lists.gnu.org/archive/html/emacs-devel/2023-11/msg01365.html
 
-** TODO Indentation rules
+** STRT Indentation rules
 
-Can tree sitter be utilized here?
+Tree sitter is used to make some basic indentation rules that aim to be consistent with "roc format", and there are tests to check that consistency. It's still a work in progress, though.
 
 ** TODO Language server integration
 
-*** LSP Mode
+NOTE: If you're using Doom Emacs, the recommended configuration above already supports this.
 
-Add the following to your configuration.
+You'll need ~roc_language_server~, which is distributed in Roc releases, in your ~PATH~.
+
+*** Option 1: Eglot
+
+Emacs 29 comes with a built-in LSP client called Eglot. To integrate with it, add the following to your configuration:
 
 #+begin_src emacs-lisp :noeval
-(require 'roc-mode)
+(with-eval-after-load 'roc-mode
+  (require 'eglot)
+  (add-to-list 'eglot-server-programs '(roc-mode "roc_language_server"))
+  (add-hook 'roc-mode-hook #'eglot-ensure))
+#+end_src
 
-(use-package! lsp-mode
-      :config
-      (roc-mode--lsp-setup))
+*** Option 2: LSP Mode
 
-(defun roc-mode--lsp-setup ()
-  "Setup LSP for Roc. Requires lsp-mode package."
+First, [[https://emacs-lsp.github.io/lsp-mode/page/installation/][install lsp-mode]] if you haven't. Then add the following to your configuration:
+
+#+begin_src emacs-lisp :noeval
+(with-eval-after-load 'roc-mode
+  (require 'lsp-mode)
   (add-to-list 'lsp-language-id-configuration '(roc-mode . "roc"))
   (lsp-register-client (make-lsp-client :new-connection (lsp-stdio-connection "roc_ls")
                                         :activation-fn (lsp-activate-on "roc")
                                         :major-modes '(roc-mode)
                                         :server-id 'roc_ls))
-  (add-hook 'roc-mode-local-vars-hook #'lsp!))
+  (add-hook 'roc-mode-hook #'lsp-deferred))
 #+end_src
 
-*** TODO Eglot
+** Roc CLI commands
 
-Emacs 29 comes with a built-in LSP client called Eglot. How to integrate with it?
+You can use the following keybindings to run Roc CLI commands.
 
+| Default keybinding | Emacs ~roc-mode~ command | CLI command   | Description                                            |
+|--------------------+--------------------------+---------------+--------------------------------------------------------|
+| ~C-c C-f~          | ~roc-format~             | ~roc format~  | Format the current buffer                              |
+| ~C-c C-b~          | ~roc-build~              | ~roc build~   | Build the current file                                 |
+| ~C-c C-t~          | ~roc-test~               | ~roc test~    | Test the current file                                  |
+| ~C-c C-r~          | ~roc-run~                | ~roc run~     | Run tests in the current file (and modules it imports) |
+| ~C-c C-d~          | ~roc-dev~                | ~roc dev~     | Check current file, then run if no errors              |
+| ~C-c C-c~          | ~roc-check~              | ~roc check~   | Check current file for errors                          |
+| ~C-c C-e~          | ~roc-repl~               | ~roc repl~    | Open a Roc REPL buffer                                 |
+| N/A                | ~roc-version~            | ~roc version~ | Print and copy the current version of Roc              |
+
+If the ~roc~ CLI isn't on your ~PATH~, you can set ~roc-program~ to the right executable path.
+
+To use the experimental ~roc-start-...~ commands, [[https://github.com/imclerran/roc-start][~roc-start~]] must be installed:
+
+| Default keybinding | Emacs ~roc-start~ command | CLI command              | Description                                             |
+|--------------------+---------------------------+--------------------------+---------------------------------------------------------|
+| ~C-c C-s C-f~      | ~roc-start-fetch~         | ~roc-start update -k -f~ | Fetch the latest packages and platforms for ~roc-start~ |
+| ~C-c C-s C-a~      | ~roc-start-app~           | ~roc-start app~          | Start a new Roc app with ~roc-start~                    |
+| ~C-c C-s C-p~      | ~roc-start-pkg~           | ~roc-start repl~         | Start a new Roc package with ~roc-start~                |
+| ~C-c C-s C-u~      | ~roc-start-update~        | ~roc-start update~       | Update all dependencies using ~roc-start~               |
+
+** Navigation
+
+Commands like ~beginning-of-defun~ (~C-M-a~ by default), ~end-of-defun~ (~C-M-e~), and ~mark-defun~ (~C-M-h~) are supported.
+In Doom Emacs, that also means you can use the ~f~ text object (e.g., use ~d i f~ to delete the current function).
+
+[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Imenu.html][imenu]] (~M-g i~) is also supported.
+
+Tree-sitter-based code folding is supported using the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Hideshow.html][Hideshow minor mode]].
 
 * License
 

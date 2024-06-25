@@ -1,5 +1,3 @@
-;;; lang/roc/roc-mode.el -*- lexical-binding: t; -*-
-
 ;;; roc-mode.el --- Roc programming language mode -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2023 Tad Lispy
@@ -36,40 +34,78 @@
 
 
 (require 'treesit)
+(require 'hideshow)
+(require 'newcomment)
 
-;;;;; Custom variables
+;;;; Custom variables
 
 (defgroup roc nil
   "Major mode for the Roc programming language."
   :group 'languages)
 
-(defcustom roc-mode-indent-offset 4
+(defcustom roc-indent-offset 4
   "The basic indentation offset in `roc-mode'."
   :type 'natnum
   :group 'roc)
 
-;;;;; Commands
+;;;; Commands
 
+;; silence warnings about commands not necessarily being defined
+(autoload 'roc-format "roc-cli")
+(autoload 'roc-build "roc-cli")
+(autoload 'roc-test "roc-cli")
+(autoload 'roc-run "roc-cli")
+(autoload 'roc-dev "roc-cli")
+(autoload 'roc-check "roc-cli")
+(autoload 'roc-version "roc-cli")
+(autoload 'roc-repl "roc-repl")
+(autoload 'roc-start-fetch "roc-start")
+(autoload 'roc-start-app "roc-start")
+(autoload 'roc-start-pkg "roc-start")
+(autoload 'roc-start-update "roc-start")
+
+(defvar-keymap roc-mode-map
+  "C-c C-f" #'roc-format
+  "C-c C-b" #'roc-build
+  "C-c C-t" #'roc-test
+  "C-c C-r" #'roc-run
+  "C-c C-d" #'roc-dev
+  "C-c C-c" #'roc-check
+  "C-c C-e" #'roc-repl
+  "C-c C-s C-f" #'roc-start-fetch
+  "C-c C-s C-a" #'roc-start-app
+  "C-c C-s C-p" #'roc-start-pkg
+  "C-c C-s C-u" #'roc-start-update)
+
+;;;###autoload
 (define-derived-mode roc-mode prog-mode "Roc"
-  "Major mode for the Roc programming language"
+  "Major mode for the Roc programming language."
   (setq-local comment-start "#"
               comment-start-skip (rx (one-or-more "#") (zero-or-more blank))
               comment-column 0
               indent-tabs-mode nil
-              tab-width roc-mode-indent-offset)
+              tab-width roc-indent-offset)
   (when (treesit-ready-p 'roc)
     (treesit-parser-create 'roc)
-    (roc-mode--ts-setup)))
+    (roc--ts-setup)))
 
-(add-to-list 'auto-mode-alist
-             '("\\.roc\\'" . roc-mode))
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.roc\\'" . roc-mode))
 
 (add-to-list 'treesit-language-source-alist
              '(roc . ("https://github.com/faldor20/tree-sitter-roc/")))
 
+;;;###autoload
+(defun roc-install-treesit-grammar ()
+  "Install the tree-sitter grammar for Roc.
+
+Uses `treesit-install-language-grammar'."
+  (interactive)
+  (treesit-install-language-grammar 'roc))
+
 ;;;; Private
 
-(defvar roc-mode--ts-font-lock-rules
+(defvar roc--ts-font-lock-rules
   '(:language roc
     :override t
     :feature comments
@@ -240,9 +276,9 @@
   "The rules for syntax highlighting Roc code based on tree-sitter.
 
 This is passed to `treesit-font-lock-rules' and assigned to
-`treesit-font-lock-settings' in `roc-mode--ts-setup'.")
+`treesit-font-lock-settings' in `roc--ts-setup'.")
 
-(defvar roc-mode--ts-indent-rules
+(defvar roc--ts-indent-rules
   `(;; The app header should be in the first column:
     ((node-is ,(rx bos "app_header" eos)) column-0 0)
     ;; Node types that should be at the same indentation level as their parents:
@@ -264,18 +300,118 @@ This is passed to `treesit-font-lock-rules' and assigned to
     ;; - type arguments
     ((n-p-gp nil ,(rx bos "apply_type_args" eos) ,(rx bos "apply_type" eos)) parent-bol 0)
     ;; Everything else should be indented one level further then its parent:
-    (catch-all parent-bol roc-mode-indent-offset))
+    (catch-all parent-bol roc-indent-offset))
   "Rules for indenting Roc code based on tree-sitter.
 
 This is assigned to an entry of `treesit-simple-indent-rules'.")
 
-(defun roc-mode--ts-setup ()
-  "Setup Tree Sitter for the Roc mode"
+(defconst roc--next-line-further-indent-regex
+  (rx (group
+       (or "=" "[" "{" "(" "->" ":" "expect-fx"
+           (seq word-start
+                (or "is" "then" "else" "expect" "where" "dbg" "app" "package" "platform" "module" "exposes" "imports" "import" "with" "packages" "requires" "provides")
+                word-end)))
+      (*? (syntax whitespace))
+      (? "#" (* not-newline))
+      eol)
+  "A regex matching lines where the next line should probably be indented further.")
+
+(defun roc--last-nonblank-line ()
+  "Go to the previous line, and keep going until we get to a non-blank one."
+  (forward-line -1)
+  (while (string-match-p (rx bol (* blank) eol)
+                         (buffer-substring (pos-bol) (pos-eol)))
+    (forward-line -1)))
+
+(defun roc--line-string ()
+  "Return the current line as a string."
+  (buffer-substring (pos-bol) (pos-eol)))
+
+(defun roc--line-match (regex)
+  "Does the current line match this REGEX? Save match data."
+  (string-match regex (roc--line-string)))
+
+(defun roc--line-match-p (regex)
+  "Does the current line match this REGEX? Don't save match data."
+  (string-match-p regex (roc--line-string)))
+
+(defun roc--line-indent-level ()
+  "Return column where the text of the current line begins."
+  (progn (beginning-of-line-text)
+         (current-column)))
+
+(defun roc--indent-line ()
+  "Like `treesit-indent', but handle some cases it gets wrong for Roc."
+  (if-let* ((target-indent-level
+             (or
+              ;; When typing "else" at the wrong indentation level
+              (ignore-errors
+                (save-excursion
+                  (when (roc--line-match-p (rx bol (* blank) "else" word-end))
+                    (let ((num-ifs 0)
+                          (num-elses 0))
+                      (while (<= num-ifs num-elses)
+                        (when (eq (roc--line-indent-level) 0)
+                          (error "roc--indent-line: Can't find a matching if"))
+                        (forward-line -1)
+                        (when (roc--line-match-p (rx word-start "if" word-end))
+                          (cl-incf num-ifs))
+                        (when (roc--line-match-p (rx word-start "else" word-end))
+                          (cl-incf num-elses)))
+                      (roc--line-indent-level)))))
+              ;; When the last line ends with things in `roc--next-line-further-indent-regex'
+              ;; (like "->" or "[when ...] is").
+              (ignore-errors
+                (save-excursion
+                  ;; Go back to last non-blank line
+                  (roc--last-nonblank-line)
+                  (and (roc--line-match roc--next-line-further-indent-regex)
+                       (progn
+                         ;; Shouldn't be in a comment
+                         (goto-char (+ (pos-bol) (match-beginning 0)))
+                         (not (equal (treesit-node-type (treesit-node-at (point)))
+                                     "line_comment")))
+                       ;; 4 + indent level of this line
+                       (+ (roc--line-indent-level)
+                          roc-indent-offset)))))))
+      (let ((position-within-line-text (- (point) (save-excursion (beginning-of-line-text) (point)))))
+        (indent-line-to target-indent-level)
+        (forward-char position-within-line-text))
+    (treesit-indent)))
+
+(defvar roc--ts-simple-imenu-settings
+  `(("Definition" ,(rx bos "value_declaration" eos) nil nil)
+    ("Type alias" ,(rx bos "alias_type_def" eos) nil nil)
+    ("Opaque type" ,(rx bos "opaque_type_def" eos) nil nil))
+  "Rules for finding `imenu' entries in Roc code based on tree-sitter.")
+
+(defun roc--ts-defun-p (node)
+  "Return non-nil if NODE is a value declaration or a top-level construct in Roc.
+
+This is used as the `cdr' of `treesit-defun-type-regexp'."
+  (or (equal (treesit-node-type node) "value_declaration")
+      (string-match-p (rx "type_def") (treesit-node-type node))
+      (equal (treesit-node-type (treesit-node-parent node)) "file")))
+
+(defun roc--ts-defun-name (node)
+  "Return the name of the type or value being declared at NODE in Roc.
+
+If NODE is not a defun or has no name, return nil.
+
+This is assigned to `treesit-defun-name-function'."
+  (cond
+   ((equal (treesit-node-type node) "value_declaration")
+    (treesit-node-text (treesit-node-child (car (treesit-filter-child node (lambda (n) (equal (treesit-node-type n) "decl_left")))) 0) 0))
+   ((string-match-p (rx "type_def") (treesit-node-type node))
+    (treesit-node-text (treesit-node-child (treesit-node-child node 0) 0)))))
+
+(defun roc--ts-setup ()
+  "Setup Tree Sitter for the Roc mode."
 
   ;; TODO: There is a highlight.scm file in the tree-sitter-roc codebase. How can I use it?
 
   (setq-local treesit-font-lock-settings
-              (apply #'treesit-font-lock-rules roc-mode--ts-font-lock-rules))
+              (apply #'treesit-font-lock-rules roc--ts-font-lock-rules))
 
   (setq-local treesit-font-lock-feature-list
               '((comments doc-comments definition-names)
@@ -283,10 +419,45 @@ This is assigned to an entry of `treesit-simple-indent-rules'.")
                 (numbers)
                 (record-field-declaration record-field-access function-calls tags variable-use modules operators boolean-negation delimiters brackets arrows lambdas assignments)))
 
-  (setf (alist-get 'roc treesit-simple-indent-rules)
-        roc-mode--ts-indent-rules)
+  (setq-local treesit-defun-type-regexp (cons "" #'roc--ts-defun-p)
+              treesit-defun-name-function #'roc--ts-defun-name
+              treesit-simple-imenu-settings roc--ts-simple-imenu-settings)
 
-  (treesit-major-mode-setup))
+  (setf (alist-get 'roc treesit-simple-indent-rules)
+        roc--ts-indent-rules)
+
+  (treesit-major-mode-setup)
+
+  (setq indent-line-function #'roc--indent-line))
+
+;;;; Hideshow
+(setf (alist-get 'roc-mode hs-special-modes-alist)
+      `(,roc--next-line-further-indent-regex ;START
+        ""                                   ;END
+        ,(rx "#")                            ;COMMENT-START
+        roc--hideshow-end-of-block           ;FORWARD-SEXP-FUNC
+        nil                                  ;ADJUST-BEG-FUNC
+        nil                                  ;FIND-BLOCK-BEGINNING-FUNC
+        nil                                  ;FIND-NEXT-BLOCK-FUNC
+        roc--hideshow-block-start-p))        ;LOOKING-AT-BLOCK-START-P-FUNC
+
+(defun roc--hideshow-end-of-block (_arg)
+  "Go to the end of the current block that should be folded."
+  (let ((started-with-bracket-p (looking-at-p (rx (any "[{("))))
+        (node (treesit-node-at (point))))
+    (goto-char (treesit-node-end (treesit-node-parent node)))
+    (when (and started-with-bracket-p (memq (char-before) '(?\) ?\] ?\})))
+      (backward-char))))
+
+(defun roc--hideshow-block-start-p ()
+  "Are we at the start of a foldable block?
+
+This function is like `hs-looking-at-block-start-p', except we
+check that we're not in a line comment."
+  (and (hs-looking-at-block-start-p)
+       (not
+        (equal (treesit-node-type (treesit-node-at (point)))
+               "line_comment"))))
 
 ;;;; Footer
 
