@@ -106,15 +106,16 @@
     (modify-syntax-entry ?\; "@" table)
     (modify-syntax-entry ?\~ "@" table)
 
-    ;; escapes
-    (modify-syntax-entry ?\$ "\\" table)
-
     ;; A backslash is sometimes an escape ("\\") when it's in a string,
     ;; but when it's a lambda, it should just count as punctuation (".").
     ;; If we designated it an escape, Emacs would get confused
     ;; by destructing lambdas (for example, \{} -> 3) because it
     ;; would think the backslash escaped the opening brace.
     (modify-syntax-entry ?\\ "." table)
+    ;; This is used for string interpolation. We shouldn't designate it an
+    ;; escape character ("\\") because then Emacs thinks the dollar sign escapes
+    ;; just the first open paren: "$(something)". So we call it punctuation (".").
+    (modify-syntax-entry ?\$ "." table)
 
     ;; punctuation
     (mapc (lambda (x)
