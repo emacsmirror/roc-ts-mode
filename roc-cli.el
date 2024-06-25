@@ -81,7 +81,7 @@ files in the current directory."
             (call-process roc-program nil nil nil "format" directory-to-run-in)
           (dolist (buffer (buffer-list))
             (with-current-buffer buffer
-              (when (and (derived-mode-p 'roc-mode buffer-file-name))
+              (when (and (derived-mode-p 'roc-mode) buffer-file-name)
                 (revert-buffer t))))))))
    (t
     (with-temp-buffer
