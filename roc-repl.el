@@ -24,6 +24,7 @@
 ;;; Code:
 
 (require 'roc-mode)
+(require 'roc-cli)
 (require 'comint)
 
 (defcustom roc-repl-arguments '()
