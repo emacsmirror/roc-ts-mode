@@ -78,6 +78,7 @@
 ;;;###autoload
 (define-derived-mode roc-mode prog-mode "Roc"
   "Major mode for the Roc programming language."
+  :group 'roc
   (setq-local comment-start "#"
               comment-start-skip (rx (one-or-more "#") (zero-or-more blank))
               comment-column 0
