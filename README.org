@@ -26,7 +26,7 @@ Add the following to ~packages.el~ (use ~doom/find-file-in-private-config~ typic
 (package! roc-mode :recipe (:host gitlab :repo "AjaiKN/roc-mode"))
 #+end_src
 
-Then, run ~M-x roc-mode-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
+Then, run ~M-x roc-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
 
 *** Recommended configuration for Doom Emacs
 
@@ -38,12 +38,12 @@ Add the following to ~config.el~ (use ~doom/find-file-in-private-config~ typical
   :config
   (map! :map roc-mode-map
         (:localleader
-         "f" #'roc-mode-format
-         "b" #'roc-mode-build
-         "t" #'roc-mode-test
-         "r" #'roc-mode-run
-         "d" #'roc-mode-dev
-         "c" #'roc-mode-check
+         "f" #'roc-format
+         "b" #'roc-build
+         "t" #'roc-test
+         "r" #'roc-run
+         "d" #'roc-dev
+         "c" #'roc-check
          "e" #'roc-repl
          (:prefix ("s" . "roc-start")
            "f" #'roc-start-fetch
@@ -82,8 +82,8 @@ Add the following to ~config.el~ (use ~doom/find-file-in-private-config~ typical
       :not "!"
       :and "&&" :or "||")
     (setq-hook! 'roc-mode-hook
-      prettify-symbols-compose-predicate #'+roc-mode-symbol-compose-p)
-    (defun +roc-mode-symbol-compose-p (start end match)
+      prettify-symbols-compose-predicate #'+roc-symbol-compose-p)
+    (defun +roc-symbol-compose-p (start end match)
       "Like `prettify-symbols-default-compose-p', except that if the
 match is !, it checks that it's a logical NOT rather than the !
 suffix operator (syntactic sugar for Task.await; see URL
@@ -110,13 +110,13 @@ See also [[https://gitlab.com/tad-lispy/nixos-configuration/-/tree/main/doom-ema
 (straight-use-package '(roc-mode :type git :host gitlab :repo "AjaiKN/roc-mode"))
 #+end_src
 
-Then, run ~M-x roc-mode-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
+Then, run ~M-x roc-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
 
 ** TODO vanilla Emacs
 
 Once the package is published to MELPA, it should be possible to install it with built-in ~install-package~, and ~straight~ shouldn't be a requirement any longer. For now, you can manually clone this repository and add it to your ~load-path~.
 
-Then, run ~M-x roc-mode-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
+Then, run ~M-x roc-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
 
 *** Basic configuration
 
@@ -185,16 +185,16 @@ You can use the following keybindings to run Roc CLI commands.
 
 | Default keybinding | Emacs ~roc-mode~ command | CLI command   | Description                                            |
 |--------------------+--------------------------+---------------+--------------------------------------------------------|
-| ~C-c C-f~          | ~roc-mode-format~        | ~roc format~  | Format the current buffer                              |
-| ~C-c C-b~          | ~roc-mode-build~         | ~roc build~   | Build the current file                                 |
-| ~C-c C-t~          | ~roc-mode-test~          | ~roc test~    | Test the current file                                  |
-| ~C-c C-r~          | ~roc-mode-run~           | ~roc run~     | Run tests in the current file (and modules it imports) |
-| ~C-c C-d~          | ~roc-mode-dev~           | ~roc dev~     | Check current file, then run if no errors              |
-| ~C-c C-c~          | ~roc-mode-check~         | ~roc check~   | Check current file for errors                          |
+| ~C-c C-f~          | ~roc-format~             | ~roc format~  | Format the current buffer                              |
+| ~C-c C-b~          | ~roc-build~              | ~roc build~   | Build the current file                                 |
+| ~C-c C-t~          | ~roc-test~               | ~roc test~    | Test the current file                                  |
+| ~C-c C-r~          | ~roc-run~                | ~roc run~     | Run tests in the current file (and modules it imports) |
+| ~C-c C-d~          | ~roc-dev~                | ~roc dev~     | Check current file, then run if no errors              |
+| ~C-c C-c~          | ~roc-check~              | ~roc check~   | Check current file for errors                          |
 | ~C-c C-e~          | ~roc-repl~               | ~roc repl~    | Open a Roc REPL buffer                                 |
-| N/A                | ~roc-mode-version~       | ~roc version~ | Print and copy the current version of Roc              |
+| N/A                | ~roc-version~            | ~roc version~ | Print and copy the current version of Roc              |
 
-If the ~roc~ CLI isn't on your ~PATH~, you can set ~roc-mode-program~ to the right executable path.
+If the ~roc~ CLI isn't on your ~PATH~, you can set ~roc-program~ to the right executable path.
 
 To use the experimental ~roc-start-...~ commands, [[https://github.com/imclerran/roc-start][~roc-start~]] must be installed:
 

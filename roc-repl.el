@@ -72,7 +72,7 @@ Returns the Roc REPL buffer."
         (apply #'make-comint-in-buffer
                "Roc"                    ;NAME
                buffer                   ;BUFFER
-               roc-mode-program         ;PROGRAM
+               roc-program              ;PROGRAM
                nil                      ;STARTFILE
                "repl"                   ;&rest SWITCHES
                roc-repl-arguments)
@@ -98,7 +98,7 @@ Returns the Roc REPL buffer."
               comment-start-skip (rx (one-or-more "#") (zero-or-more blank))
               comment-column 0
               indent-tabs-mode nil
-              tab-width roc-mode-indent-offset))
+              tab-width roc-indent-offset))
 
 (defun roc-repl-send-string (string)
   "Send the given STRING to a Roc REPL."

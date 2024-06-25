@@ -45,25 +45,25 @@
   "Major mode for the Roc programming language."
   :group 'languages)
 
-(defcustom roc-mode-indent-offset 4
+(defcustom roc-indent-offset 4
   "The basic indentation offset in `roc-mode'."
   :type 'natnum
   :group 'roc)
 
-(defcustom roc-mode-program "roc"
+(defcustom roc-program "roc"
   "The path to the roc executable."
   :type 'file
   :group 'roc)
 
-(defcustom roc-mode-compile-function #'compile
-  "The function to use when running commands like `roc-mode-test'.
+(defcustom roc-compile-function #'compile
+  "The function to use when running commands like `roc-test'.
 
 This function is passed a single argument, the shell command to
 run."
   :type 'function
   :group 'roc)
 
-(defcustom roc-mode-format-replace-buffer-contents-max-secs 3
+(defcustom roc-format-replace-buffer-contents-max-secs 3
   "See the second argument of `replace-buffer-contents'."
   :type '(choice
           (integer :tag "Seconds")
@@ -72,7 +72,7 @@ run."
 
 ;;;; Commands
 
-(defun roc-mode-format (&optional buffer)
+(defun roc-format (&optional buffer)
   "Run \"roc format\" on BUFFER.
 
 BUFFER defaults to the current buffer. Interactively, if a prefix
@@ -100,7 +100,7 @@ files in the current directory."
                         (save-buffer)
                         t)))
         (unwind-protect
-            (call-process roc-mode-program nil nil nil "format" directory-to-run-in)
+            (call-process roc-program nil nil nil "format" directory-to-run-in)
           (dolist (buffer (buffer-list))
             (with-current-buffer buffer
               (when (and (derived-mode-p 'roc-mode buffer-file-name))
@@ -109,60 +109,60 @@ files in the current directory."
     (with-temp-buffer
       (let ((temp-buffer (current-buffer)))
         (with-current-buffer buffer
-          (if (equal (call-process-region nil nil roc-mode-program nil temp-buffer nil "format" "--stdin" "--stdout")
+          (if (equal (call-process-region nil nil roc-program nil temp-buffer nil "format" "--stdin" "--stdout")
                      0)
-              (replace-buffer-contents temp-buffer roc-mode-format-replace-buffer-contents-max-secs)
+              (replace-buffer-contents temp-buffer roc-format-replace-buffer-contents-max-secs)
             (message "The \"roc format\" command exited unsuccessfully."))))))))
 
-(defun roc-mode-build (&optional file)
+(defun roc-build (&optional file)
   "Run the \"roc build\" command on FILE.
 
 Interactively, FILE is the current file. If a prefix argument is
 specified, then FILE is nil, meaning no file argument is passed
 to \"roc build\"."
   (interactive (list (unless current-prefix-arg (buffer-file-name))))
-  (roc-mode--run-roc-subcommand "build" (and file (list file))))
+  (roc--run-roc-subcommand "build" (and file (list file))))
 
-(defun roc-mode-test (&optional file)
+(defun roc-test (&optional file)
   "Run the \"roc test\" command on FILE.
 
 Interactively, FILE is the current file. If a prefix argument is
 specified, then FILE is nil, meaning no file argument is passed
 to \"roc test\"."
   (interactive (list (unless current-prefix-arg (buffer-file-name))))
-  (roc-mode--run-roc-subcommand "test" (and file (list file))))
+  (roc--run-roc-subcommand "test" (and file (list file))))
 
-(defun roc-mode-run (&optional file)
+(defun roc-run (&optional file)
   "Run the \"roc run\" command on FILE.
 
 Interactively, FILE is the current file. If a prefix argument is
 specified, then FILE is nil, meaning no file argument is passed
 to \"roc run\"."
   (interactive (list (unless current-prefix-arg (buffer-file-name))))
-  (roc-mode--run-roc-subcommand "run" (and file (list file))))
+  (roc--run-roc-subcommand "run" (and file (list file))))
 
-(defun roc-mode-dev (&optional file)
+(defun roc-dev (&optional file)
   "Run the \"roc dev\" command on FILE.
 
 Interactively, FILE is the current file. If a prefix argument is
 specified, then FILE is nil, meaning no file argument is passed
 to \"roc dev\"."
   (interactive (list (unless current-prefix-arg (buffer-file-name))))
-  (roc-mode--run-roc-subcommand "dev" (and file (list file))))
+  (roc--run-roc-subcommand "dev" (and file (list file))))
 
-(defun roc-mode-check (&optional file)
+(defun roc-check (&optional file)
   "Run the \"roc check\" command on FILE.
 
 Interactively, FILE is the current file. If a prefix argument is
 specified, then FILE is nil, meaning no file argument is passed
 to \"roc check\"."
   (interactive (list (unless current-prefix-arg (buffer-file-name))))
-  (roc-mode--run-roc-subcommand "check" (and file (list file))))
+  (roc--run-roc-subcommand "check" (and file (list file))))
 
-(defun roc-mode-version ()
+(defun roc-version ()
   "Print the current version of Roc and save it to the kill ring."
   (interactive)
-  (let ((output (shell-command-to-string (format "%s version" (shell-quote-argument roc-mode-program)))))
+  (let ((output (shell-command-to-string (format "%s version" (shell-quote-argument roc-program)))))
     (message (string-trim output))
     (with-temp-buffer
       (insert (string-trim output))
@@ -176,12 +176,12 @@ to \"roc check\"."
 (autoload 'roc-start-update "roc-start")
 
 (defvar-keymap roc-mode-map
-  "C-c C-f" #'roc-mode-format
-  "C-c C-b" #'roc-mode-build
-  "C-c C-t" #'roc-mode-test
-  "C-c C-r" #'roc-mode-run
-  "C-c C-d" #'roc-mode-dev
-  "C-c C-c" #'roc-mode-check
+  "C-c C-f" #'roc-format
+  "C-c C-b" #'roc-build
+  "C-c C-t" #'roc-test
+  "C-c C-r" #'roc-run
+  "C-c C-d" #'roc-dev
+  "C-c C-c" #'roc-check
   "C-c C-e" #'roc-repl
   "C-c C-s C-f" #'roc-start-fetch
   "C-c C-s C-a" #'roc-start-app
@@ -195,10 +195,10 @@ to \"roc check\"."
               comment-start-skip (rx (one-or-more "#") (zero-or-more blank))
               comment-column 0
               indent-tabs-mode nil
-              tab-width roc-mode-indent-offset)
+              tab-width roc-indent-offset)
   (when (treesit-ready-p 'roc)
     (treesit-parser-create 'roc)
-    (roc-mode--ts-setup)))
+    (roc--ts-setup)))
 
 (add-to-list 'auto-mode-alist
              '("\\.roc\\'" . roc-mode))
@@ -207,7 +207,7 @@ to \"roc check\"."
              '(roc . ("https://github.com/faldor20/tree-sitter-roc/")))
 
 ;;;###autoload
-(defun roc-mode-install-treesit-grammar ()
+(defun roc-install-treesit-grammar ()
   "Install the tree-sitter grammar for Roc.
 
 Uses `treesit-install-language-grammar'."
@@ -216,18 +216,18 @@ Uses `treesit-install-language-grammar'."
 
 ;;;; Private
 
-(defun roc-mode--run-roc-subcommand (subcommand &optional arguments)
+(defun roc--run-roc-subcommand (subcommand &optional arguments)
   "Run ``roc SUBCOMMAND ARGUMENTS'' in a compilation buffer."
   (when (listp arguments)
     (setq arguments (string-join (mapcar #'shell-quote-argument arguments) " ")))
   (save-selected-window
-    (funcall roc-mode-compile-function
+    (funcall roc-compile-function
              (format "%s %s %s"
-                     (shell-quote-argument roc-mode-program)
+                     (shell-quote-argument roc-program)
                      subcommand
                      arguments))))
 
-(defvar roc-mode--ts-font-lock-rules
+(defvar roc--ts-font-lock-rules
   '(:language roc
     :override t
     :feature comments
@@ -398,9 +398,9 @@ Uses `treesit-install-language-grammar'."
   "The rules for syntax highlighting Roc code based on tree-sitter.
 
 This is passed to `treesit-font-lock-rules' and assigned to
-`treesit-font-lock-settings' in `roc-mode--ts-setup'.")
+`treesit-font-lock-settings' in `roc--ts-setup'.")
 
-(defvar roc-mode--ts-indent-rules
+(defvar roc--ts-indent-rules
   `(;; The app header should be in the first column:
     ((node-is ,(rx bos "app_header" eos)) column-0 0)
     ;; Node types that should be at the same indentation level as their parents:
@@ -422,12 +422,12 @@ This is passed to `treesit-font-lock-rules' and assigned to
     ;; - type arguments
     ((n-p-gp nil ,(rx bos "apply_type_args" eos) ,(rx bos "apply_type" eos)) parent-bol 0)
     ;; Everything else should be indented one level further then its parent:
-    (catch-all parent-bol roc-mode-indent-offset))
+    (catch-all parent-bol roc-indent-offset))
   "Rules for indenting Roc code based on tree-sitter.
 
 This is assigned to an entry of `treesit-simple-indent-rules'.")
 
-(defconst roc-mode--next-line-further-indent-regex
+(defconst roc--next-line-further-indent-regex
   (rx (group
        (or "=" "[" "{" "(" "->" ":" "expect-fx"
            (seq word-start
@@ -438,76 +438,76 @@ This is assigned to an entry of `treesit-simple-indent-rules'.")
       eol)
   "A regex matching lines where the next line should probably be indented further.")
 
-(defun roc-mode--last-nonblank-line ()
+(defun roc--last-nonblank-line ()
   "Go to the previous line, and keep going until we get to a non-blank one."
   (forward-line -1)
   (while (string-match-p (rx bol (* blank) eol)
                          (buffer-substring (pos-bol) (pos-eol)))
     (forward-line -1)))
 
-(defun roc-mode--line-string ()
+(defun roc--line-string ()
   "Return the current line as a string."
   (buffer-substring (pos-bol) (pos-eol)))
 
-(defun roc-mode--line-match (regex)
+(defun roc--line-match (regex)
   "Does the current line match this REGEX? Save match data."
-  (string-match regex (roc-mode--line-string)))
+  (string-match regex (roc--line-string)))
 
-(defun roc-mode--line-match-p (regex)
+(defun roc--line-match-p (regex)
   "Does the current line match this REGEX? Don't save match data."
-  (string-match-p regex (roc-mode--line-string)))
+  (string-match-p regex (roc--line-string)))
 
-(defun roc-mode--line-indent-level ()
+(defun roc--line-indent-level ()
   "Return column where the text of the current line begins."
   (progn (beginning-of-line-text)
          (current-column)))
 
-(defun roc-mode--indent-line ()
+(defun roc--indent-line ()
   "Like `treesit-indent', but handle some cases it gets wrong for Roc."
   (if-let* ((target-indent-level
              (or
               ;; When typing "else" at the wrong indentation level
               (ignore-errors
                 (save-excursion
-                  (when (roc-mode--line-match-p (rx bol (* blank) "else" word-end))
+                  (when (roc--line-match-p (rx bol (* blank) "else" word-end))
                     (let ((num-ifs 0)
                           (num-elses 0))
                       (while (<= num-ifs num-elses)
-                        (when (eq (roc-mode--line-indent-level) 0)
-                          (error "roc-mode--indent-line: Can't find a matching if"))
+                        (when (eq (roc--line-indent-level) 0)
+                          (error "roc--indent-line: Can't find a matching if"))
                         (forward-line -1)
-                        (when (roc-mode--line-match-p (rx word-start "if" word-end))
+                        (when (roc--line-match-p (rx word-start "if" word-end))
                           (cl-incf num-ifs))
-                        (when (roc-mode--line-match-p (rx word-start "else" word-end))
+                        (when (roc--line-match-p (rx word-start "else" word-end))
                           (cl-incf num-elses)))
-                      (roc-mode--line-indent-level)))))
-              ;; When the last line ends with things in `roc-mode--next-line-further-indent-regex'
+                      (roc--line-indent-level)))))
+              ;; When the last line ends with things in `roc--next-line-further-indent-regex'
               ;; (like "->" or "[when ...] is").
               (ignore-errors
                 (save-excursion
                   ;; Go back to last non-blank line
-                  (roc-mode--last-nonblank-line)
-                  (and (roc-mode--line-match roc-mode--next-line-further-indent-regex)
+                  (roc--last-nonblank-line)
+                  (and (roc--line-match roc--next-line-further-indent-regex)
                        (progn
                          ;; Shouldn't be in a comment
                          (goto-char (+ (pos-bol) (match-beginning 0)))
                          (not (equal (treesit-node-type (treesit-node-at (point)))
                                      "line_comment")))
                        ;; 4 + indent level of this line
-                       (+ (roc-mode--line-indent-level)
-                          roc-mode-indent-offset)))))))
+                       (+ (roc--line-indent-level)
+                          roc-indent-offset)))))))
       (let ((position-within-line-text (- (point) (save-excursion (beginning-of-line-text) (point)))))
         (indent-line-to target-indent-level)
         (forward-char position-within-line-text))
     (treesit-indent)))
 
-(defvar roc-mode--ts-simple-imenu-settings
+(defvar roc--ts-simple-imenu-settings
   `(("Definition" ,(rx bos "value_declaration" eos) nil nil)
     ("Type alias" ,(rx bos "alias_type_def" eos) nil nil)
     ("Opaque type" ,(rx bos "opaque_type_def" eos) nil nil))
   "Rules for finding `imenu' entries in Roc code based on tree-sitter.")
 
-(defun roc-mode--ts-defun-p (node)
+(defun roc--ts-defun-p (node)
   "Return non-nil if NODE is a value declaration or a top-level construct in Roc.
 
 This is used as the `cdr' of `treesit-defun-type-regexp'."
@@ -515,7 +515,7 @@ This is used as the `cdr' of `treesit-defun-type-regexp'."
       (string-match-p (rx "type_def") (treesit-node-type node))
       (equal (treesit-node-type (treesit-node-parent node)) "file")))
 
-(defun roc-mode--ts-defun-name (node)
+(defun roc--ts-defun-name (node)
   "Return the name of the type or value being declared at NODE in Roc.
 
 If NODE is not a defun or has no name, return nil.
@@ -527,13 +527,13 @@ This is assigned to `treesit-defun-name-function'."
    ((string-match-p (rx "type_def") (treesit-node-type node))
     (treesit-node-text (treesit-node-child (treesit-node-child node 0) 0)))))
 
-(defun roc-mode--ts-setup ()
+(defun roc--ts-setup ()
   "Setup Tree Sitter for the Roc mode."
 
   ;; TODO: There is a highlight.scm file in the tree-sitter-roc codebase. How can I use it?
 
   (setq-local treesit-font-lock-settings
-              (apply #'treesit-font-lock-rules roc-mode--ts-font-lock-rules))
+              (apply #'treesit-font-lock-rules roc--ts-font-lock-rules))
 
   (setq-local treesit-font-lock-feature-list
               '((comments doc-comments definition-names)
@@ -541,29 +541,29 @@ This is assigned to `treesit-defun-name-function'."
                 (numbers)
                 (record-field-declaration record-field-access function-calls tags variable-use modules operators boolean-negation delimiters brackets arrows lambdas assignments)))
 
-  (setq-local treesit-defun-type-regexp (cons "" #'roc-mode--ts-defun-p)
-              treesit-defun-name-function #'roc-mode--ts-defun-name
-              treesit-simple-imenu-settings roc-mode--ts-simple-imenu-settings)
+  (setq-local treesit-defun-type-regexp (cons "" #'roc--ts-defun-p)
+              treesit-defun-name-function #'roc--ts-defun-name
+              treesit-simple-imenu-settings roc--ts-simple-imenu-settings)
 
   (setf (alist-get 'roc treesit-simple-indent-rules)
-        roc-mode--ts-indent-rules)
+        roc--ts-indent-rules)
 
   (treesit-major-mode-setup)
 
-  (setq indent-line-function #'roc-mode--indent-line))
+  (setq indent-line-function #'roc--indent-line))
 
 ;;;; Hideshow
 (setf (alist-get 'roc-mode hs-special-modes-alist)
-      `(,roc-mode--next-line-further-indent-regex ;START
+      `(,roc--next-line-further-indent-regex ;START
         ""                                        ;END
         ,(rx "#")                                 ;COMMENT-START
-        roc-mode--hideshow-end-of-block           ;FORWARD-SEXP-FUNC
+        roc--hideshow-end-of-block           ;FORWARD-SEXP-FUNC
         nil                                       ;ADJUST-BEG-FUNC
         nil                                       ;FIND-BLOCK-BEGINNING-FUNC
         nil                                       ;FIND-NEXT-BLOCK-FUNC
-        roc-mode--hideshow-block-start-p))        ;LOOKING-AT-BLOCK-START-P-FUNC
+        roc--hideshow-block-start-p))        ;LOOKING-AT-BLOCK-START-P-FUNC
 
-(defun roc-mode--hideshow-end-of-block (_arg)
+(defun roc--hideshow-end-of-block (_arg)
   ""
   (let ((started-with-bracket-p (looking-at-p (rx (any "[{("))))
         (node (treesit-node-at (point))))
@@ -571,7 +571,7 @@ This is assigned to `treesit-defun-name-function'."
     (when (and started-with-bracket-p (memq (char-before) '(?\) ?\] ?\})))
       (backward-char))))
 
-(defun roc-mode--hideshow-block-start-p ()
+(defun roc--hideshow-block-start-p ()
   ""
   (and (hs-looking-at-block-start-p)
        (not
