@@ -200,8 +200,8 @@ to \"roc check\"."
     (treesit-parser-create 'roc)
     (roc--ts-setup)))
 
-(add-to-list 'auto-mode-alist
-             '("\\.roc\\'" . roc-mode))
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.roc\\'" . roc-mode))
 
 (add-to-list 'treesit-language-source-alist
              '(roc . ("https://github.com/faldor20/tree-sitter-roc/")))
