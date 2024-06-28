@@ -367,12 +367,22 @@ This is assigned to an entry of `treesit-simple-indent-rules'.")
       eol)
   "A regex matching lines where the next line should probably be indented further.")
 
+(defun roc--prev-line ()
+  "Go to the previous line. Throw an error if we're already on the first line."
+  (interactive)
+  (let ((old-point (point)))
+    (forward-line -1)
+    (when (and (eq (point) (point-min))
+               (eq (line-number-at-pos (point)) (line-number-at-pos old-point)))
+      (goto-char old-point)
+      (error "Already on first line"))))
+
 (defun roc--last-nonblank-line ()
   "Go to the previous line, and keep going until we get to a non-blank one."
-  (forward-line -1)
+  (roc--prev-line)
   (while (string-match-p (rx bol (* blank) eol)
                          (buffer-substring (pos-bol) (pos-eol)))
-    (forward-line -1)))
+    (roc--prev-line)))
 
 (defun roc--line-string ()
   "Return the current line as a string."
@@ -394,37 +404,38 @@ This is assigned to an entry of `treesit-simple-indent-rules'.")
 (defun roc--indent-line ()
   "Like `treesit-indent', but handle some cases it gets wrong for Roc."
   (if-let* ((target-indent-level
-             (or
-              ;; When typing "else" at the wrong indentation level
-              (ignore-errors
-                (save-excursion
-                  (when (roc--line-match-p (rx bol (* blank) "else" word-end))
-                    (let ((num-ifs 0)
-                          (num-elses 0))
-                      (while (<= num-ifs num-elses)
-                        (when (eq (roc--line-indent-level) 0)
-                          (error "roc--indent-line: Can't find a matching if"))
-                        (forward-line -1)
-                        (when (roc--line-match-p (rx word-start "if" word-end))
-                          (cl-incf num-ifs))
-                        (when (roc--line-match-p (rx word-start "else" word-end))
-                          (cl-incf num-elses)))
-                      (roc--line-indent-level)))))
-              ;; When the last line ends with things in `roc--next-line-further-indent-regex'
-              ;; (like "->" or "[when ...] is").
-              (ignore-errors
-                (save-excursion
-                  ;; Go back to last non-blank line
-                  (roc--last-nonblank-line)
-                  (and (roc--line-match roc--next-line-further-indent-regex)
-                       (progn
-                         ;; Shouldn't be in a comment
-                         (goto-char (+ (pos-bol) (match-beginning 0)))
-                         (not (equal (treesit-node-type (treesit-node-at (point)))
-                                     "line_comment")))
-                       ;; 4 + indent level of this line
-                       (+ (roc--line-indent-level)
-                          roc-indent-offset)))))))
+             (without-restriction
+               (or
+                ;; When typing "else" at the wrong indentation level
+                (ignore-errors
+                  (save-excursion
+                    (when (roc--line-match-p (rx bol (* blank) "else" word-end))
+                      (let ((num-ifs 0)
+                            (num-elses 0))
+                        (while (<= num-ifs num-elses)
+                          (when (eq (roc--line-indent-level) 0)
+                            (error "roc--indent-line: Can't find a matching if"))
+                          (roc--prev-line)
+                          (when (roc--line-match-p (rx word-start "if" word-end))
+                            (cl-incf num-ifs))
+                          (when (roc--line-match-p (rx word-start "else" word-end))
+                            (cl-incf num-elses)))
+                        (roc--line-indent-level)))))
+                ;; When the last line ends with things in `roc--next-line-further-indent-regex'
+                ;; (like "->" or "[when ...] is").
+                (ignore-errors
+                  (save-excursion
+                    ;; Go back to last non-blank line
+                    (roc--last-nonblank-line)
+                    (and (roc--line-match roc--next-line-further-indent-regex)
+                         (progn
+                           ;; Shouldn't be in a comment
+                           (goto-char (+ (pos-bol) (match-beginning 0)))
+                           (not (equal (treesit-node-type (treesit-node-at (point)))
+                                       "line_comment")))
+                         ;; 4 + indent level of this line
+                         (+ (roc--line-indent-level)
+                            roc-indent-offset))))))))
       (let ((position-within-line-text (- (point) (save-excursion (beginning-of-line-text) (point)))))
         (indent-line-to target-indent-level)
         (forward-char position-within-line-text))
