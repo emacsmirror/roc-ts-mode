@@ -203,7 +203,8 @@ Uses `treesit-install-language-grammar'."
     :language roc
     :override t
     :feature strings
-    ((string) @font-lock-string-face)
+    ((string) @font-lock-string-face
+     (package_uri) @font-lock-string-face)
 
     :language roc
     :override t
