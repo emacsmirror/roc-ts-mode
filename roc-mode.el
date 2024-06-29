@@ -435,7 +435,26 @@ This is assigned to an entry of `treesit-simple-indent-rules'.")
                                        "line_comment")))
                          ;; 4 + indent level of this line
                          (+ (roc--line-indent-level)
-                            roc-indent-offset))))))))
+                            roc-indent-offset))))
+                ;; Right after an app/module declaration
+                ;; (see after-app tests in roc-mode-newline-and-indent.erts)
+                (ignore-errors
+                  (save-excursion
+                    (roc--last-nonblank-line)
+                    (end-of-line)
+                    (let* ((node (treesit-node-at (point)))
+                           (parent (treesit-node-parent node)))
+                      (and (or
+                            ;; it's the root node itself
+                            (null (treesit-node-parent node))
+                            ;; it's a child of the root node
+                            (null (treesit-node-parent parent))
+                            ;; it's the closing curly in an app/module declaration
+                            (and (or (equal (treesit-node-type node) "}")
+                                     (equal (treesit-node-type node) "]"))
+                                 (or (equal (treesit-node-type parent) "packages_list")
+                                     (equal (treesit-node-type parent) "exposes_list"))))
+                           0))))))))
       (let ((position-within-line-text (- (point) (save-excursion (beginning-of-line-text) (point)))))
         (indent-line-to target-indent-level)
         (forward-char position-within-line-text))
