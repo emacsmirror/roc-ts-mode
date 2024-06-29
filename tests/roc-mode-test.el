@@ -22,5 +22,8 @@ up-to-date with the output of Roc's formatter."
                                                  "roc format --stdin --stdout"
                                                  (current-buffer) t))))
 
+(ert-deftest roc-newline-and-indent ()
+  (ert-test-erts-file "./roc-mode-newline-and-indent.erts"))
+
 (provide 'roc-mode-test)
 ;;; roc-mode-test.el ends here
