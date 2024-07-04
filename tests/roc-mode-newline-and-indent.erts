@@ -221,6 +221,24 @@ f =
 q = 4
 =-=-=
 
+Name: after-equals-blank-line-comment
+=-=
+app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+
+f =
+
+        # hello
+|
+=-=
+app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+
+f =
+
+        # hello
+
+    |
+=-=-=
+
 Name: after-colon
 =-=
 app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }

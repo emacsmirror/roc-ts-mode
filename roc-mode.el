@@ -380,7 +380,9 @@ This is assigned to an entry of `treesit-simple-indent-rules'.")
 (defun roc--last-nonblank-line ()
   "Go to the previous line, and keep going until we get to a non-blank one."
   (roc--prev-line)
-  (while (string-match-p (rx bol (* blank) eol)
+  (while (string-match-p (rx bol (* blank)
+                             (? "#" (* not-newline)) ;If there's just a comment, it's still a blank line
+                             eol)
                          (buffer-substring (pos-bol) (pos-eol)))
     (roc--prev-line)))
 
