@@ -33,7 +33,7 @@
   :type 'file
   :group 'roc)
 
-(defcustom roc-compile-function #'compile
+(defcustom roc-compile-function #'compilation-start
   "The function to use when running commands like `roc-test'.
 
 This function is passed a single argument, the shell command to
