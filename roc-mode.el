@@ -3,7 +3,9 @@
 ;; Copyright (C) 2023 Tad Lispy
 ;;
 ;; Author: Tad Lispy <tadeusz@lazurski.pl>
+;;         Ajai Khatri Nelson <emacs@ajai.dev>
 ;; Maintainer: Tad Lispy <tadeusz@lazurski.pl>
+;;             Ajai Khatri Nelson <emacs@ajai.dev>
 ;; Created: November 30, 2023
 ;; Version: 0.1-pre
 ;; Keywords: languages
