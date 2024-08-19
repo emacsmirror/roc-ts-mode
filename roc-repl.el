@@ -83,7 +83,6 @@ Returns the Roc REPL buffer."
     (when (and buffer (not do-not-pop-buffer))
       (pop-to-buffer buffer))
     buffer))
-(defalias 'run-roc #'roc-repl)
 
 (define-derived-mode roc-repl-mode comint-mode "Roc REPL"
   "Major mode for `roc-repl'.
