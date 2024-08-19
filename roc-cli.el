@@ -1,4 +1,4 @@
-;;; roc-cli.el --- Description -*- lexical-binding: t; -*-
+;;; roc-cli.el --- Commands for running the Roc CLI -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2024 Ajai Khatri Nelson
 ;;
@@ -19,7 +19,7 @@
 ;;
 ;;; Commentary:
 ;;
-;;  Description
+;;  Commands for running Roc programming language CLI commands.
 ;;
 ;;; Code:
 

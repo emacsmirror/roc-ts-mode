@@ -1,4 +1,4 @@
-;;; roc-start.el --- Description -*- lexical-binding: t; -*-
+;;; roc-start.el --- Starting new Roc apps/packages -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2024 Ajai Khatri Nelson
 ;;
@@ -19,7 +19,9 @@
 ;;
 ;;; Commentary:
 ;;
-;;  Description
+;;  Experimental commands for using Ian McLerran's roc-start program
+;;  (<https://github.com/imclerran/roc-start>) to start new Roc applications and
+;;  packages.
 ;;
 ;;; Code:
 

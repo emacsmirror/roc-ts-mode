@@ -1,4 +1,4 @@
-;;; roc-repl.el --- Description -*- lexical-binding: t; -*-
+;;; roc-repl.el --- Roc REPL -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2024 Ajai Khatri Nelson
 ;;
@@ -19,7 +19,7 @@
 ;;
 ;;; Commentary:
 ;;
-;;  Description
+;;  Running REPLs for the Roc programming language.
 ;;
 ;;; Code:
 
