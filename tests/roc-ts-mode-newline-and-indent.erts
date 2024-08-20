@@ -1,4 +1,4 @@
-Code: (lambda () (roc-mode) (newline-and-indent))
+Code: (lambda () (roc-ts-mode) (newline-and-indent))
 Point-Char: |
 
 Name: after-app

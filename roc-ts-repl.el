@@ -1,4 +1,4 @@
-;;; roc-repl.el --- Roc REPL -*- lexical-binding: t; -*-
+;;; roc-ts-repl.el --- Roc REPL -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2024 Ajai Khatri Nelson
 ;;
@@ -23,49 +23,49 @@
 ;;
 ;;; Code:
 
-(require 'roc-mode)
-(require 'roc-cli)
+(require 'roc-ts-mode)
+(require 'roc-ts-cli)
 (require 'comint)
 
-(defcustom roc-repl-arguments '()
-  "Command line arguments to pass to `roc-repl'."
-  :group 'roc
+(defcustom roc-ts-repl-arguments '()
+  "Command line arguments to pass to `roc-ts-repl'."
+  :group 'roc-ts
   :type '(repeat string))
 
-(defcustom roc-repl-buffer-name "*roc-repl*"
-  "Buffer name for the comint buffer created by `roc-repl'.
+(defcustom roc-ts-repl-buffer-name "*roc-ts-repl*"
+  "Buffer name for the comint buffer created by `roc-ts-repl'.
 
 If this is a function, the function will be called with no
 arguments and should return a buffer name.
 
-If a buffer of that name already exists, `roc-repl' will use that
+If a buffer of that name already exists, `roc-ts-repl' will use that
 buffer instead of creating a new one."
-  :group 'roc
+  :group 'roc-ts
   :type '(choice string function))
 
-(defvar roc-repl-prompt-regexp (rx bol "» ")
-  "Prompt for `roc-repl'.")
+(defvar roc-ts-repl-prompt-regexp (rx bol "» ")
+  "Prompt for `roc-ts-repl'.")
 
-(defun roc-repl--buffer-name ()
-  "Get the buffer name to be used for `roc-repl'.
+(defun roc-ts-repl--buffer-name ()
+  "Get the buffer name to be used for `roc-ts-repl'.
 
-See `roc-repl-buffer-name'."
-  (if (functionp roc-repl-buffer-name)
-      (funcall roc-repl-buffer-name)
-    roc-repl-buffer-name))
+See `roc-ts-repl-buffer-name'."
+  (if (functionp roc-ts-repl-buffer-name)
+      (funcall roc-ts-repl-buffer-name)
+    roc-ts-repl-buffer-name))
 
 ;;;###autoload
-(defun roc-repl (&optional do-not-pop-buffer)
+(defun roc-ts-repl (&optional do-not-pop-buffer)
   "Open an inferior Roc REPL.
 
-If there is a buffer with the name `roc-repl-buffer-name', use
+If there is a buffer with the name `roc-ts-repl-buffer-name', use
 that buffer. Otherwise, create a new one.
 
 If DO-NOT-POP-BUFFER is non-nil, do not switch to the buffer.
 
 Returns the Roc REPL buffer."
   (interactive)
-  (let* ((buffer (get-buffer-create (roc-repl--buffer-name)))
+  (let* ((buffer (get-buffer-create (roc-ts-repl--buffer-name)))
          (proc-alive (comint-check-proc buffer)))
     (unless proc-alive
       ;; recreate process
@@ -73,22 +73,22 @@ Returns the Roc REPL buffer."
         (apply #'make-comint-in-buffer
                "Roc"                    ;NAME
                buffer                   ;BUFFER
-               roc-program              ;PROGRAM
+               roc-ts-program           ;PROGRAM
                nil                      ;STARTFILE
                "repl"                   ;&rest SWITCHES
-               roc-repl-arguments)
+               roc-ts-repl-arguments)
         ;; reset mode
-        (roc-repl-mode)))
+        (roc-ts-repl-mode)))
     ;; Open the roc repl buffer
     (when (and buffer (not do-not-pop-buffer))
       (pop-to-buffer buffer))
     buffer))
 
-(define-derived-mode roc-repl-mode comint-mode "Roc REPL"
-  "Major mode for `roc-repl'.
+(define-derived-mode roc-ts-repl-mode comint-mode "Roc REPL"
+  "Major mode for `roc-ts-repl'.
 
-\\<roc-mode-map>"
-  (setq-local comint-prompt-regexp roc-repl-prompt-regexp
+\\<roc-ts-mode-map>"
+  (setq-local comint-prompt-regexp roc-ts-repl-prompt-regexp
               comint-use-prompt-regexp t
               comint-process-echoes t
               comint-prompt-read-only t
@@ -98,15 +98,15 @@ Returns the Roc REPL buffer."
               comment-start-skip (rx (one-or-more "#") (zero-or-more blank))
               comment-column 0
               indent-tabs-mode nil
-              tab-width roc-indent-offset))
+              tab-width roc-ts-indent-offset))
 
-(defun roc-repl-send-string (string)
+(defun roc-ts-repl-send-string (string)
   "Send the given STRING to a Roc REPL."
-  (comint-send-string (roc-repl t) string))
+  (comint-send-string (roc-ts-repl t) string))
 
-(defun roc-repl-send-region (start end)
+(defun roc-ts-repl-send-region (start end)
   "Send the region delimited by START and END to a Roc REPL."
-  (comint-send-region (roc-repl t) start end))
+  (comint-send-region (roc-ts-repl t) start end))
 
-(provide 'roc-repl)
-;;; roc-repl.el ends here
+(provide 'roc-ts-repl)
+;;; roc-ts-repl.el ends here

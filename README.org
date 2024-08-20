@@ -1,4 +1,4 @@
-#+title: Roc Mode
+#+title: roc-ts-mode
 #+subtitle: Roc programming language mode for Emacs
 
 Roc is a strongly typed functional programming language inspired by Elm, but for variety of platforms. See [[https://www.roc-lang.org/][https://www.roc-lang.org/]].
@@ -18,66 +18,66 @@ Requirements: Emacs 29.1+.
 Add the following to ~packages.el~ (use ~doom/find-file-in-private-config~ typically bound to ~SPC f p~):
 
 #+begin_src emacs-lisp :noeval
-(package! roc-mode :recipe (:host gitlab :repo "tad-lispy/roc-mode"))
+(package! roc-ts-mode :recipe (:host gitlab :repo "tad-lispy/roc-ts-mode"))
 #+end_src
 
-Then, run ~M-x roc-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
+Then, run ~M-x roc-ts-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
 
 *** Recommended configuration for Doom Emacs
 
 Add the following to ~config.el~ (use ~doom/find-file-in-private-config~ typically bound to ~SPC f p~):
 
 #+begin_src emacs-lisp :noeval
-(use-package! roc-mode
-  :mode ("\\.roc\\'" . roc-mode)
+(use-package! roc-ts-mode
+  :mode ("\\.roc\\'" . roc-ts-mode)
   :config
-  (map! :map roc-mode-map
+  (map! :map roc-ts-mode-map
         (:localleader
-         "f" #'roc-format
-         "b" #'roc-build
-         "t" #'roc-test
-         "r" #'roc-run
-         "d" #'roc-dev
-         "c" #'roc-check
-         "e" #'roc-repl
+         "f" #'roc-ts-format
+         "b" #'roc-ts-build
+         "t" #'roc-ts-test
+         "r" #'roc-ts-run
+         "d" #'roc-ts-dev
+         "c" #'roc-ts-check
+         "e" #'roc-ts-repl
          (:prefix ("s" . "roc-start")
-           "a" #'roc-start-app
-           "p" #'roc-start-pkg
-           "u" #'roc-start-update)))
+           "a" #'roc-ts-start-app
+           "p" #'roc-ts-start-pkg
+           "u" #'roc-ts-start-update)))
 
-  (set-popup-rule! (rx bol "*roc-repl") :size 0.3)
+  (set-popup-rule! (rx bol "*roc-ts-repl") :size 0.3)
 
   ;; Setup the LSP support:
   ;; For this to work, you'll need roc_language_server, which is distributed in
   ;; Roc releases, in your PATH.
   (when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
     (require 'lsp-mode)
-    (add-to-list 'lsp-language-id-configuration '(roc-mode . "roc"))
+    (add-to-list 'lsp-language-id-configuration '(roc-ts-mode . "roc"))
     (lsp-register-client (make-lsp-client :new-connection (lsp-stdio-connection "roc_language_server")
                                           :activation-fn (lsp-activate-on "roc")
-                                          :major-modes '(roc-mode)
+                                          :major-modes '(roc-ts-mode)
                                           :server-id 'roc_ls)))
   (when (modulep! :tools lsp +eglot)
-    (set-eglot-client! 'roc-mode '("roc_language_server")))
-  (add-hook 'roc-mode-local-vars-hook #'lsp!)
+    (set-eglot-client! 'roc-ts-mode '("roc_language_server")))
+  (add-hook 'roc-ts-mode-local-vars-hook #'lsp!)
 
   ;; Formatting
-  (set-formatter! 'roc-format '("roc" "format" "--stdin" "--stdout") :modes '(roc-mode))
-  (setq-hook! 'roc-mode-local-vars-hook
-    +format-with 'roc-format)
+  (set-formatter! 'roc-ts-format '("roc" "format" "--stdin" "--stdout") :modes '(roc-ts-mode))
+  (setq-hook! 'roc-ts-mode-local-vars-hook
+    +format-with 'roc-ts-format)
 
   ;; Keywords that should trigger electric indentation
-  (set-electric! 'roc-mode :words '("else"))
+  (set-electric! 'roc-ts-mode :words '("else"))
 
   ;; Extra ligatures
   (when (modulep! :ui ligatures +extra)
-    (set-ligatures! 'roc-mode
+    (set-ligatures! 'roc-ts-mode
       :true "Bool.true" :false "Bool.false"
       :not "!"
       :and "&&" :or "||")
-    (setq-hook! 'roc-mode-hook
-      prettify-symbols-compose-predicate #'+roc-symbol-compose-p)
-    (defun +roc-symbol-compose-p (start end match)
+    (setq-hook! 'roc-ts-mode-hook
+      prettify-symbols-compose-predicate #'+roc-ts-symbol-compose-p)
+    (defun +roc-ts-symbol-compose-p (start end match)
       "Like `prettify-symbols-default-compose-p', except that if the
 match is !, it checks that it's a logical NOT rather than the !
 suffix operator (syntactic sugar for Task.await; see URL
@@ -98,16 +98,16 @@ See also [[https://gitlab.com/tad-lispy/nixos-configuration/-/tree/main/doom-ema
 ** Using straight
 
 #+begin_src emacs-lisp
-(straight-use-package '(roc-mode :type git :host gitlab :repo "tad-lispy/roc-mode"))
+(straight-use-package '(roc-ts-mode :type git :host gitlab :repo "tad-lispy/roc-ts-mode"))
 #+end_src
 
-Then, run ~M-x roc-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
+Then, run ~M-x roc-ts-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
 
 ** TODO vanilla Emacs
 
 Once the package is published to MELPA, it should be possible to install it with built-in ~install-package~, and ~straight~ shouldn't be a requirement any longer. For now, you can manually clone this repository and add it to your ~load-path~.
 
-Then, run ~M-x roc-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
+Then, run ~M-x roc-ts-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
 
 *** Basic configuration
 
@@ -115,8 +115,8 @@ Add the following to your ~init.el~:
 
 #+begin_src emacs-lisp :noeval
 
-(use-package roc-mode
-  :mode ("\\.roc\\'" . roc-mode)
+(use-package roc-ts-mode
+  :mode ("\\.roc\\'" . roc-ts-mode)
   :config
   ;; any configuration goes here (e.g., see below for language server integration)...
   )
@@ -149,10 +149,10 @@ You'll need ~roc_language_server~, which is distributed in Roc releases, in your
 Emacs 29 comes with a built-in LSP client called Eglot. To integrate with it, add the following to your configuration:
 
 #+begin_src emacs-lisp :noeval
-(with-eval-after-load 'roc-mode
+(with-eval-after-load 'roc-ts-mode
   (require 'eglot)
-  (add-to-list 'eglot-server-programs '(roc-mode "roc_language_server"))
-  (add-hook 'roc-mode-hook #'eglot-ensure))
+  (add-to-list 'eglot-server-programs '(roc-ts-mode "roc_language_server"))
+  (add-hook 'roc-ts-mode-hook #'eglot-ensure))
 #+end_src
 
 *** Option 2: LSP Mode
@@ -160,40 +160,40 @@ Emacs 29 comes with a built-in LSP client called Eglot. To integrate with it, ad
 First, [[https://emacs-lsp.github.io/lsp-mode/page/installation/][install lsp-mode]] if you haven't. Then add the following to your configuration:
 
 #+begin_src emacs-lisp :noeval
-(with-eval-after-load 'roc-mode
+(with-eval-after-load 'roc-ts-mode
   (require 'lsp-mode)
-  (add-to-list 'lsp-language-id-configuration '(roc-mode . "roc"))
+  (add-to-list 'lsp-language-id-configuration '(roc-ts-mode . "roc"))
   (lsp-register-client (make-lsp-client :new-connection (lsp-stdio-connection "roc_ls")
                                         :activation-fn (lsp-activate-on "roc")
-                                        :major-modes '(roc-mode)
+                                        :major-modes '(roc-ts-mode)
                                         :server-id 'roc_ls))
-  (add-hook 'roc-mode-hook #'lsp-deferred))
+  (add-hook 'roc-ts-mode-hook #'lsp-deferred))
 #+end_src
 
 ** Roc CLI commands
 
 You can use the following keybindings to run Roc CLI commands.
 
-| Default keybinding | Emacs ~roc-mode~ command | CLI command   | Description                                            |
-|--------------------+--------------------------+---------------+--------------------------------------------------------|
-| ~C-c C-f~          | ~roc-format~             | ~roc format~  | Format the current buffer                              |
-| ~C-c C-b~          | ~roc-build~              | ~roc build~   | Build the current file                                 |
-| ~C-c C-t~          | ~roc-test~               | ~roc test~    | Test the current file                                  |
-| ~C-c C-r~          | ~roc-run~                | ~roc run~     | Run tests in the current file (and modules it imports) |
-| ~C-c C-d~          | ~roc-dev~                | ~roc dev~     | Check current file, then run if no errors              |
-| ~C-c C-c~          | ~roc-check~              | ~roc check~   | Check current file for errors                          |
-| ~C-c C-e~          | ~roc-repl~               | ~roc repl~    | Open a Roc REPL buffer                                 |
-| N/A                | ~roc-version~            | ~roc version~ | Print and copy the current version of Roc              |
+| Default keybinding | Emacs ~roc-ts-mode~ command | CLI command   | Description                                            |
+|--------------------+-----------------------------+---------------+--------------------------------------------------------|
+| ~C-c C-f~          | ~roc-ts-format~             | ~roc format~  | Format the current buffer                              |
+| ~C-c C-b~          | ~roc-ts-build~              | ~roc build~   | Build the current file                                 |
+| ~C-c C-t~          | ~roc-ts-test~               | ~roc test~    | Test the current file                                  |
+| ~C-c C-r~          | ~roc-ts-run~                | ~roc run~     | Run tests in the current file (and modules it imports) |
+| ~C-c C-d~          | ~roc-ts-dev~                | ~roc dev~     | Check current file, then run if no errors              |
+| ~C-c C-c~          | ~roc-ts-check~              | ~roc check~   | Check current file for errors                          |
+| ~C-c C-e~          | ~roc-ts-repl~               | ~roc repl~    | Open a Roc REPL buffer                                 |
+| N/A                | ~roc-ts-version~            | ~roc version~ | Print and copy the current version of Roc              |
 
-If the ~roc~ CLI isn't on your ~PATH~, you can set ~roc-program~ to the right executable path.
+If the ~roc~ CLI isn't on your ~PATH~, you can set ~roc-ts-program~ to the right executable path.
 
-To use the experimental ~roc-start-...~ commands, [[https://github.com/imclerran/roc-start][~roc-start~]] must be installed:
+To use the experimental ~roc-ts-start-...~ commands, [[https://github.com/imclerran/roc-start][~roc-start~]] must be installed:
 
-| Default keybinding | Emacs ~roc-start~ command | CLI command        | Description                                         |
-|--------------------+---------------------------+--------------------+-----------------------------------------------------|
-| ~C-c C-s C-a~      | ~roc-start-app~           | ~roc-start app~    | Start a new Roc app with ~roc-start~                |
-| ~C-c C-s C-p~      | ~roc-start-pkg~           | ~roc-start repl~   | Start a new Roc package with ~roc-start~            |
-| ~C-c C-s C-u~      | ~roc-start-update~        | ~roc-start update~ | Fetch the latest packages, platforms, and app stubs |
+| Default keybinding | Emacs ~roc-ts-start~ command | CLI command        | Description                                         |
+|--------------------+------------------------------+--------------------+-----------------------------------------------------|
+| ~C-c C-s C-a~      | ~roc-ts-start-app~           | ~roc-start app~    | Start a new Roc app with ~roc-start~                |
+| ~C-c C-s C-p~      | ~roc-ts-start-pkg~           | ~roc-start repl~   | Start a new Roc package with ~roc-start~            |
+| ~C-c C-s C-u~      | ~roc-ts-start-update~        | ~roc-start update~ | Fetch the latest packages, platforms, and app stubs |
 
 ** Navigation
 

@@ -1,4 +1,4 @@
-;;; roc-cli.el --- Commands for running the Roc CLI -*- lexical-binding: t; -*-
+;;; roc-ts-cli.el --- Commands for running the Roc CLI -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2024 Ajai Khatri Nelson
 ;;
@@ -28,29 +28,29 @@
 
 ;;;; Custom variables
 
-(defcustom roc-program "roc"
+(defcustom roc-ts-program "roc"
   "The path to the roc executable."
   :type 'file
-  :group 'roc)
+  :group 'roc-ts)
 
-(defcustom roc-compile-function #'compilation-start
-  "The function to use when running commands like `roc-test'.
+(defcustom roc-ts-compile-function #'compilation-start
+  "The function to use when running commands like `roc-ts-test'.
 
 This function is passed a single argument, the shell command to
 run."
   :type 'function
-  :group 'roc)
+  :group 'roc-ts)
 
-(defcustom roc-format-replace-buffer-contents-max-secs 3
+(defcustom roc-ts-format-replace-buffer-contents-max-secs 3
   "See the second argument of `replace-buffer-contents'."
   :type '(choice
           (integer :tag "Seconds")
           (const :tag "No timeout" nil))
-  :group 'roc)
+  :group 'roc-ts)
 
 ;;;; Commands
 
-(defun roc-format (&optional buffer)
+(defun roc-ts-format (&optional buffer)
   "Run \"roc format\" on BUFFER.
 
 BUFFER defaults to the current buffer. Interactively, if a prefix
@@ -68,7 +68,7 @@ files in the current directory."
       (when (cl-loop
              for buffer in (buffer-list)
              when (with-current-buffer buffer
-                    (and (derived-mode-p 'roc-mode)
+                    (and (derived-mode-p 'roc-ts-mode)
                          buffer-file-name
                          (buffer-modified-p)
                          (file-in-directory-p buffer-file-name directory-to-run-in)))
@@ -78,69 +78,69 @@ files in the current directory."
                         (save-buffer)
                         t)))
         (unwind-protect
-            (call-process roc-program nil nil nil "format" directory-to-run-in)
+            (call-process roc-ts-program nil nil nil "format" directory-to-run-in)
           (dolist (buffer (buffer-list))
             (with-current-buffer buffer
-              (when (and (derived-mode-p 'roc-mode) buffer-file-name)
+              (when (and (derived-mode-p 'roc-ts-mode) buffer-file-name)
                 (revert-buffer t))))))))
    (t
     (with-temp-buffer
       (let ((temp-buffer (current-buffer)))
         (with-current-buffer buffer
-          (if (equal (call-process-region nil nil roc-program nil temp-buffer nil "format" "--stdin" "--stdout")
+          (if (equal (call-process-region nil nil roc-ts-program nil temp-buffer nil "format" "--stdin" "--stdout")
                      0)
-              (replace-buffer-contents temp-buffer roc-format-replace-buffer-contents-max-secs)
+              (replace-buffer-contents temp-buffer roc-ts-format-replace-buffer-contents-max-secs)
             (message "The \"roc format\" command exited unsuccessfully."))))))))
 
-(defun roc-build (&optional file)
+(defun roc-ts-build (&optional file)
   "Run the \"roc build\" command on FILE.
 
 Interactively, FILE is the current file. If a prefix argument is
 specified, then FILE is nil, meaning no file argument is passed
 to \"roc build\"."
   (interactive (list (unless current-prefix-arg (buffer-file-name))))
-  (roc--run-roc-subcommand "build" (and file (list file))))
+  (roc-ts--run-roc-subcommand "build" (and file (list file))))
 
-(defun roc-test (&optional file)
+(defun roc-ts-test (&optional file)
   "Run the \"roc test\" command on FILE.
 
 Interactively, FILE is the current file. If a prefix argument is
 specified, then FILE is nil, meaning no file argument is passed
 to \"roc test\"."
   (interactive (list (unless current-prefix-arg (buffer-file-name))))
-  (roc--run-roc-subcommand "test" (and file (list file))))
+  (roc-ts--run-roc-subcommand "test" (and file (list file))))
 
-(defun roc-run (&optional file)
+(defun roc-ts-run (&optional file)
   "Run the \"roc run\" command on FILE.
 
 Interactively, FILE is the current file. If a prefix argument is
 specified, then FILE is nil, meaning no file argument is passed
 to \"roc run\"."
   (interactive (list (unless current-prefix-arg (buffer-file-name))))
-  (roc--run-roc-subcommand "run" (and file (list file))))
+  (roc-ts--run-roc-subcommand "run" (and file (list file))))
 
-(defun roc-dev (&optional file)
+(defun roc-ts-dev (&optional file)
   "Run the \"roc dev\" command on FILE.
 
 Interactively, FILE is the current file. If a prefix argument is
 specified, then FILE is nil, meaning no file argument is passed
 to \"roc dev\"."
   (interactive (list (unless current-prefix-arg (buffer-file-name))))
-  (roc--run-roc-subcommand "dev" (and file (list file))))
+  (roc-ts--run-roc-subcommand "dev" (and file (list file))))
 
-(defun roc-check (&optional file)
+(defun roc-ts-check (&optional file)
   "Run the \"roc check\" command on FILE.
 
 Interactively, FILE is the current file. If a prefix argument is
 specified, then FILE is nil, meaning no file argument is passed
 to \"roc check\"."
   (interactive (list (unless current-prefix-arg (buffer-file-name))))
-  (roc--run-roc-subcommand "check" (and file (list file))))
+  (roc-ts--run-roc-subcommand "check" (and file (list file))))
 
-(defun roc-version ()
+(defun roc-ts-version ()
   "Print the current version of Roc and save it to the kill ring."
   (interactive)
-  (let ((output (shell-command-to-string (format "%s version" (shell-quote-argument roc-program)))))
+  (let ((output (shell-command-to-string (format "%s version" (shell-quote-argument roc-ts-program)))))
     (message (string-trim output))
     (with-temp-buffer
       (insert (string-trim output))
@@ -148,16 +148,16 @@ to \"roc check\"."
 
 ;;;; Private
 
-(defun roc--run-roc-subcommand (subcommand &optional arguments)
+(defun roc-ts--run-roc-subcommand (subcommand &optional arguments)
   "Run ``roc SUBCOMMAND ARGUMENTS'' in a compilation buffer."
   (when (listp arguments)
     (setq arguments (string-join (mapcar #'shell-quote-argument arguments) " ")))
   (save-selected-window
-    (funcall roc-compile-function
+    (funcall roc-ts-compile-function
              (format "%s %s %s"
-                     (shell-quote-argument roc-program)
+                     (shell-quote-argument roc-ts-program)
                      subcommand
                      arguments))))
 
-(provide 'roc-cli)
-;;; roc-cli.el ends here
+(provide 'roc-ts-cli)
+;;; roc-ts-cli.el ends here
