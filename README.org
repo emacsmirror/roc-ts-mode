@@ -1,6 +1,8 @@
 #+title: roc-ts-mode
 #+subtitle: Roc programming language mode for Emacs
 
+[[https://melpa.org/#/roc-ts-mode][file:https://melpa.org/packages/roc-ts-mode-badge.svg]]
+
 Roc is a strongly typed functional programming language inspired by Elm, but for variety of platforms. See [[https://www.roc-lang.org/][https://www.roc-lang.org/]].
 
 * Disclaimer
@@ -9,23 +11,54 @@ This code is an early work in progress and I am a novice at Emacs Lisp. Polite s
 
 * Install
 
-Currently only installation from the Git repository is possible.
+~roc-ts-mode~ is [[https://melpa.org/#/roc-ts-mode][available on MELPA]].
 
 Requirements: Emacs 29.1+.
 
-** In Doom Emacs
+** Vanilla Emacs
 
-Add the following to ~packages.el~ (use ~doom/find-file-in-private-config~ typically bound to ~SPC f p~):
+If you haven't done so already, first [[https://melpa.org/#/getting-started][enable installation of packages from MELPA]].
+
+Then, run ~M-x package-install RET roc-ts-mode RET~.
+
+Finally, run ~M-x roc-ts-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
+
+*** Basic configuration
+
+Add the following to your ~init.el~:
 
 #+begin_src emacs-lisp :noeval
-(package! roc-ts-mode :recipe (:host gitlab :repo "tad-lispy/roc-ts-mode"))
+
+(use-package roc-ts-mode
+  :mode ("\\.roc\\'" . roc-ts-mode)
+  :config
+  ;; any configuration goes here (e.g., see below for language server integration)...
+  )
+#+end_src
+
+** Using straight
+
+#+begin_src emacs-lisp
+(straight-use-package 'roc-ts-mode)
 #+end_src
 
 Then, run ~M-x roc-ts-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
 
+** In Doom Emacs
+
+Add the following to ~packages.el~ (use ~M-x doom/goto-private-packages-file~, typically bound to ~SPC h d p d~):
+
+#+begin_src emacs-lisp :noeval
+(package! roc-ts-mode)
+#+end_src
+
+Then, run ~doom sync~ on the command line and restart Emacs (or use the experimental ~M-x doom/reload~, typically bound to ~SPC h r r~).
+
+Finally, run ~M-x roc-ts-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
+
 *** Recommended configuration for Doom Emacs
 
-Add the following to ~config.el~ (use ~doom/find-file-in-private-config~ typically bound to ~SPC f p~):
+Add the following to ~config.el~ (use ~M-x doom/goto-private-config-file~, typically bound to ~SPC h d c~):
 
 #+begin_src emacs-lisp :noeval
 (use-package! roc-ts-mode
@@ -95,33 +128,6 @@ suffix operator (syntactic sugar for Task.await; see URL
 
 See also [[https://gitlab.com/tad-lispy/nixos-configuration/-/tree/main/doom-emacs/modules/lang/roc][tad-lispy's private module for Roc]].
 
-** Using straight
-
-#+begin_src emacs-lisp
-(straight-use-package '(roc-ts-mode :type git :host gitlab :repo "tad-lispy/roc-ts-mode"))
-#+end_src
-
-Then, run ~M-x roc-ts-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
-
-** TODO vanilla Emacs
-
-Once the package is published to MELPA, it should be possible to install it with built-in ~install-package~, and ~straight~ shouldn't be a requirement any longer. For now, you can manually clone this repository and add it to your ~load-path~.
-
-Then, run ~M-x roc-ts-install-treesit-grammar~ (or install the Roc tree-sitter grammar another way).
-
-*** Basic configuration
-
-Add the following to your ~init.el~:
-
-#+begin_src emacs-lisp :noeval
-
-(use-package roc-ts-mode
-  :mode ("\\.roc\\'" . roc-ts-mode)
-  :config
-  ;; any configuration goes here (e.g., see below for language server integration)...
-  )
-#+end_src
-
 * Features
 
 ** STRT Syntax highlighting
@@ -138,7 +144,7 @@ Relevant discussion: https://lists.gnu.org/archive/html/emacs-devel/2023-11/msg0
 
 Tree sitter is used to make some basic indentation rules that aim to be consistent with "roc format", and there are tests to check that consistency. It's still a work in progress, though.
 
-** TODO Language server integration
+** Language server integration
 
 NOTE: If you're using Doom Emacs, the recommended configuration above already supports this.
 
