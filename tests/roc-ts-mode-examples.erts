@@ -131,8 +131,7 @@ Musician : {
     lastName ? Str,
 }
 
-Username :=
-    Str
+Username := Str
 
 =-=-=
 
