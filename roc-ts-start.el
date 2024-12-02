@@ -32,14 +32,18 @@
   :type 'file
   :group 'roc-ts)
 
+;;;###autoload (put 'roc-ts-start-platforms-file 'risky-local-variable t)
 (defcustom roc-ts-start-platforms-file "~/.roc-start/pf-data.rvn"
   "The file that includes a list of Roc platforms."
   :type 'file
+  :risky t
   :group 'roc-ts)
 
+;;;###autoload (put 'roc-ts-start-packages-file 'risky-local-variable t)
 (defcustom roc-ts-start-packages-file "~/.roc-start/pkg-data.rvn"
   "The file that includes a list of Roc packages."
   :type 'file
+  :risky t
   :group 'roc-ts)
 
 ;; TODO: actually parse the rvn

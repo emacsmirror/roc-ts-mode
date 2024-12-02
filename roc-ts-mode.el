@@ -48,6 +48,7 @@
 (defcustom roc-ts-indent-offset 4
   "The basic indentation offset in `roc-ts-mode'."
   :type 'natnum
+  :safe #'natnump
   :group 'roc-ts)
 
 ;;;; Commands

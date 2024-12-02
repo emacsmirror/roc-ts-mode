@@ -27,11 +27,14 @@
 (require 'roc-ts-cli)
 (require 'comint)
 
+;;;###autoload (put 'roc-ts-repl-arguments 'risky-local-variable t)
 (defcustom roc-ts-repl-arguments '()
   "Command line arguments to pass to `roc-ts-repl'."
   :group 'roc-ts
+  :risky t
   :type '(repeat string))
 
+;;;###autoload (put 'roc-ts-repl-buffer-name 'risky-local-variable t)
 (defcustom roc-ts-repl-buffer-name "*roc-ts-repl*"
   "Buffer name for the comint buffer created by `roc-ts-repl'.
 
