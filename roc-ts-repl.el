@@ -44,6 +44,7 @@ arguments and should return a buffer name.
 If a buffer of that name already exists, `roc-ts-repl' will use that
 buffer instead of creating a new one."
   :group 'roc-ts
+  :risky t
   :type '(choice string function))
 
 (defvar roc-ts-repl-prompt-regexp (rx bol "» ")
