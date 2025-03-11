@@ -50,6 +50,7 @@ run."
 
 ;;;; Commands
 
+;;;###autoload
 (defun roc-ts-format (&optional buffer)
   "Run \"roc format\" on BUFFER.
 
@@ -92,6 +93,7 @@ files in the current directory."
               (replace-buffer-contents temp-buffer roc-ts-format-replace-buffer-contents-max-secs)
             (message "The \"roc format\" command exited unsuccessfully."))))))))
 
+;;;###autoload
 (defun roc-ts-build (&optional file)
   "Run the \"roc build\" command on FILE.
 
@@ -101,6 +103,7 @@ to \"roc build\"."
   (interactive (list (unless current-prefix-arg (buffer-file-name))))
   (roc-ts--run-roc-subcommand "build" (and file (list file))))
 
+;;;###autoload
 (defun roc-ts-test (&optional file)
   "Run the \"roc test\" command on FILE.
 
@@ -110,6 +113,7 @@ to \"roc test\"."
   (interactive (list (unless current-prefix-arg (buffer-file-name))))
   (roc-ts--run-roc-subcommand "test" (and file (list file))))
 
+;;;###autoload
 (defun roc-ts-run (&optional file)
   "Run the \"roc run\" command on FILE.
 
@@ -119,6 +123,7 @@ to \"roc run\"."
   (interactive (list (unless current-prefix-arg (buffer-file-name))))
   (roc-ts--run-roc-subcommand "run" (and file (list file))))
 
+;;;###autoload
 (defun roc-ts-dev (&optional file)
   "Run the \"roc dev\" command on FILE.
 
@@ -128,6 +133,7 @@ to \"roc dev\"."
   (interactive (list (unless current-prefix-arg (buffer-file-name))))
   (roc-ts--run-roc-subcommand "dev" (and file (list file))))
 
+;;;###autoload
 (defun roc-ts-check (&optional file)
   "Run the \"roc check\" command on FILE.
 
@@ -137,6 +143,7 @@ to \"roc check\"."
   (interactive (list (unless current-prefix-arg (buffer-file-name))))
   (roc-ts--run-roc-subcommand "check" (and file (list file))))
 
+;;;###autoload
 (defun roc-ts-version ()
   "Print the current version of Roc and save it to the kill ring."
   (interactive)

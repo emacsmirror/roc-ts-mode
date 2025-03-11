@@ -53,19 +53,6 @@
 
 ;;;; Commands
 
-;; silence warnings about commands not necessarily being defined
-(autoload 'roc-ts-format "roc-ts-cli")
-(autoload 'roc-ts-build "roc-ts-cli")
-(autoload 'roc-ts-test "roc-ts-cli")
-(autoload 'roc-ts-run "roc-ts-cli")
-(autoload 'roc-ts-dev "roc-ts-cli")
-(autoload 'roc-ts-check "roc-ts-cli")
-(autoload 'roc-ts-version "roc-ts-cli")
-(autoload 'roc-ts-repl "roc-ts-repl")
-(autoload 'roc-ts-start-app "roc-ts-start")
-(autoload 'roc-ts-start-pkg "roc-ts-start")
-(autoload 'roc-ts-start-update "roc-ts-start")
-
 (defvar-keymap roc-ts-mode-map
   "C-c C-f" #'roc-ts-format
   "C-c C-b" #'roc-ts-build
