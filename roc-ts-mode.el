@@ -103,27 +103,24 @@
 
     ;; part of symbol
     (modify-syntax-entry ?\_ "_" table)
+    (modify-syntax-entry ?\! "_" table) ; can also be NOT
 
     ;; unused
     (modify-syntax-entry ?\` "@" table)
     (modify-syntax-entry ?\; "@" table)
     (modify-syntax-entry ?\~ "@" table)
 
-    ;; A backslash is sometimes an escape ("\\") when it's in a string,
-    ;; but when it's a lambda, it should just count as punctuation (".").
-    ;; If we designated it an escape, Emacs would get confused
-    ;; by destructing lambdas (for example, \{} -> 3) because it
-    ;; would think the backslash escaped the opening brace.
-    (modify-syntax-entry ?\\ "." table)
+    ;; escape character
+    (modify-syntax-entry ?\\ "\\" table)
     ;; This is used for string interpolation. We shouldn't designate it an
     ;; escape character ("\\") because then Emacs thinks the dollar sign escapes
-    ;; just the first open paren: "$(something)". So we call it punctuation (".").
+    ;; just the first open brace: "${something}". So we call it punctuation (".").
     (modify-syntax-entry ?\$ "." table)
 
     ;; punctuation
     (mapc (lambda (x)
             (modify-syntax-entry x "." table))
-          "^%!&|*+,-./:<=>?@")
+          "^%&|*+,-./:<=>?@")
 
     table))
 
@@ -211,16 +208,8 @@ Uses `treesit-install-language-grammar'."
 
     :language roc
     :override t
-    :feature string-escapes
-    ((escape_char) @font-lock-escape-face
-     (interpolation_char) @font-lock-escape-face)
-
-    :language roc
-    :override t
     :feature types
-    ((concrete_type) @font-lock-type-face
-     (inferred) @font-lock-type-face
-     (wildcard) @font-lock-type-face
+    ((inferred) @font-lock-type-face
      (ability) @font-lock-type-face)
 
     :language roc
@@ -232,7 +221,7 @@ Uses `treesit-install-language-grammar'."
     :override t
     :feature tag-types
     ((tags_type
-      (apply_type (concrete_type) @font-lock-builtin-face)))
+      (tag_type) @font-lock-builtin-face))
 
     :language roc
     :override t
@@ -260,7 +249,7 @@ Uses `treesit-install-language-grammar'."
     :language roc
     :override t
     :feature function-calls
-    ((function_call_expr
+    ((function_call_pnc_expr
       caller: (variable_expr (identifier) @font-lock-function-call-face)))
 
     :language roc
@@ -294,12 +283,6 @@ Uses `treesit-install-language-grammar'."
 
     :language roc
     :override t
-    :feature boolean-negation
-    ((prefixed_expression
-      (operator "!" @font-lock-negation-char-face)))
-
-    :language roc
-    :override t
     :feature delimiters
     ("," @font-lock-delimiter-face)
 
@@ -313,15 +296,25 @@ Uses `treesit-install-language-grammar'."
      "(" @font-lock-bracket-face
      ")" @font-lock-bracket-face)
 
+    ;; must be after brackets feature (because should be prioritized over brackets)
+    :language roc
+    :override t
+    :feature string-escapes
+    ((escape_char) @font-lock-escape-face
+     (interpolation_char
+      "${" @font-lock-escape-face
+      "}" @font-lock-escape-face))
+
     :language roc
     :override t
     :feature arrows
-    ((arrow) @font-lock-misc-punctuation-face)
+    ((arrow) @font-lock-misc-punctuation-face
+     (fat_arrow) @font-lock-misc-punctuation-face)
 
     :language roc
     :override t
     :feature lambdas
-    ((backslash) @font-lock-misc-punctuation-face)
+    ("|" @font-lock-misc-punctuation-face)
 
     :language roc
     :override t
@@ -353,15 +346,24 @@ This is passed to `treesit-font-lock-rules' and assigned to
     ((parent-is ,(rx bos "function_type" eos)) parent-bol 0)
     ;; - type arguments
     ((n-p-gp nil ,(rx bos "apply_type_args" eos) ,(rx bos "apply_type" eos)) parent-bol 0)
+    ;; - multi-part identifiers (e.g., with "!" at the end)
+    ((n-p-gp nil ,(rx bos "identifier" eos) nil) parent-bol 0)
     ;; Everything else should be indented one level further then its parent:
     (catch-all parent-bol roc-ts-indent-offset))
   "Rules for indenting Roc code based on tree-sitter.
 
 This is assigned to an entry of `treesit-simple-indent-rules'.")
 
+;; see `treesit-simple-indent-presets'
+(defun roc-ts--first-sibling-bol (_n parent &rest _)
+  (save-excursion
+    (goto-char (treesit-node-start (treesit-node-child parent 0)))
+    (back-to-indentation)
+    (point)))
+
 (defconst roc-ts--next-line-further-indent-regex
   (rx (group
-       (or "=" "[" "{" "(" "->" ":" "expect-fx"
+       (or "=" "[" "{" "(" "->" "=>" "|" ":" "expect-fx"
            (seq word-start
                 (or "is" "then" "else" "expect" "where" "dbg" "app" "package" "platform" "module" "exposes" "imports" "import" "with" "packages" "requires" "provides")
                 word-end)))
@@ -503,7 +505,7 @@ This is assigned to `treesit-defun-name-function'."
               '((comments doc-comments definition-names)
                 (keywords strings string-escapes types type-variables tag-types)
                 (numbers)
-                (record-field-declaration record-field-access function-calls tags variable-use modules operators boolean-negation delimiters brackets arrows lambdas assignments)))
+                (record-field-declaration record-field-access function-calls tags variable-use modules operators  delimiters brackets arrows lambdas assignments)))
 
   (setq-local treesit-defun-type-regexp (cons "" #'roc-ts--ts-defun-p)
               treesit-defun-name-function #'roc-ts--ts-defun-name

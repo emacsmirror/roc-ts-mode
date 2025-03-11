@@ -69,7 +69,7 @@ app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/downlo
 import pf.Stdout
 import pf.Task
 
-main : Int _ zib, Int _ { a : Int, b : Int _ -> Int } -> [False (Int _ -> zabl) *, True]
+main : Int _ zib, Int _ { a : Int, b : Int _ => Int } => [False (Int _ => zabl) *, True]
 main =
     z = "hi"
     obj =
@@ -99,15 +99,15 @@ main :
         a : Int,
         b : Int
             _
-        -> Int,
+        => Int,
     }
-    ->
+    =>
     [
         False
             (Int
-                _
-            ->
-            zabl)
+                    _
+                =>
+                zabl)
             *,
         True,
     ]
@@ -128,7 +128,7 @@ Musician : {
         name : Str,
         otherThing : Str,
     },
-    lastName ? Str,
+    lastName ?? Str,
 }
 
 Username := Str
@@ -140,7 +140,7 @@ Name: plus
 app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
 
 ## This is a doc comment.
-addAndStringify = \num1, num2 ->
+addAndStringify = |num1, num2|
     Num.toStr
         (
             num1
@@ -153,8 +153,8 @@ Name: pipes
 =-=
 app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
 
-toJson : a -> List U8 where a implements Encoding
-toJson = \val ->
+toJson : a => List U8 where a implements Encoding
+toJson = |val|
     val
     |> Encode.toBytes JSON.encoder
 =-=-=
@@ -163,8 +163,8 @@ Name: or-pattern
 =-=
 app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
 
-f : Something -> Something
-f = \z ->
+f : Something => Something
+f = |z|
     when List.get nfa stateInd is
         Ok (A b c) -> A c b
         Ok U64
@@ -176,8 +176,8 @@ Name: or-pattern2
 =-=
 app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
 
-f : Something -> Something
-f = \z ->
+f : Something => Something
+f = |z|
     when List.get nfa stateInd is
         Ok (A b c) -> A c b
         Ok U64
