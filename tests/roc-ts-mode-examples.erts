@@ -1,57 +1,57 @@
 Name: before-and-after
 =-=
- app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+ app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
 import pf.Stdout
 import pf.Task
 
-main =
-  Stdout.line! "hi"
+main! = |_args|
+  Stdout.line!("hi")
 =-=
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
 import pf.Stdout
 import pf.Task
 
-main =
-    Stdout.line! "hi"
+main! = |_args|
+    Stdout.line!("hi")
 =-=-=
 
 Name: basic
 =-=
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
 import pf.Stdout
 import pf.Task
 
-main =
-    Stdout.line! "hi"
+main! = |_args|
+    Stdout.line!("hi")
 =-=-=
 
 Name: basic2
 =-=
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
 import pf.Stdout
 import pf.Task
 
-main =
+main! = |_args|
     z = "hi"
     obj =
         { a: "hi\n" }
     q = obj.a
-    Stdout.line! "hi"
+    Stdout.line!("hi")
 =-=-=
 
 Name: with-comments
 =-=
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
 import pf.Stdout
 import pf.Task
 
 # this is a comment
-main =
+main! = |_args|
     # another comment
     z = "hi"
     # another comment
@@ -59,23 +59,23 @@ main =
         # another comment
         { a: "hi\n" }
     q = obj.a
-    Stdout.line! "hi"
+    Stdout.line!("hi")
 =-=-=
 
 Name: types
 =-=
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
 import pf.Stdout
 import pf.Task
 
-main : Int _ zib, Int _ { a : Int, b : Int _ => Int } => [False (Int _ => zabl) *, True]
-main =
+main : Int _ zib, Int _ { a : Int, b : Int _ => Int } -> [False (Int _ -> zabl) *, True]
+main! = |_args|
     z = "hi"
     obj =
         { a: "hi\n" }
     q = obj.a
-    Stdout.line! "hi"
+    Stdout.line!("hi")
 =-=-=
 
 Name: split-lines
@@ -85,7 +85,7 @@ app [
 ] {
     pf:
         platform
-        "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br",
+        "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br",
 }
 
 import pf.Stdout
@@ -101,34 +101,34 @@ main :
             _
         => Int,
     }
-    =>
+    ->
     [
         False
             (Int
                     _
-                =>
+                ->
                 zabl)
             *,
         True,
     ]
-main =
+main! = |_args|
     z = "hi"
     obj =
         { a: "hi\n" }
     q = obj.a
-    Stdout.line! "hi"
+    Stdout.line!("hi")
 =-=-=
 
 Name: type-aliases
 =-=
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
 Musician : {
-    firstName : {
+    first_name : {
         name : Str,
-        otherThing : Str,
+        other_thing : Str,
     },
-    lastName ?? Str,
+    last_name ?? Str,
 }
 
 Username := Str
@@ -137,51 +137,50 @@ Username := Str
 
 Name: plus
 =-=
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
 ## This is a doc comment.
-addAndStringify = |num1, num2|
-    Num.toStr
-        (
-            num1
-            +
-            num2
-        )
+add_and_stringify = |num1, num2|
+    Num.to_str(
+        num1
+        +
+        num2,
+    )
 =-=-=
 
 Name: pipes
 =-=
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
-toJson : a => List U8 where a implements Encoding
-toJson = |val|
+to_json : a -> List U8 where a implements Encoding
+to_json = |val|
     val
-    |> Encode.toBytes JSON.encoder
+    |> Encode.to_bytes(JSON.encoder)
 =-=-=
 
 Name: or-pattern
 =-=
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
-f : Something => Something
+f : Something -> Something
 f = |z|
-    when List.get nfa stateInd is
-        Ok (A b c) -> A c b
-        Ok U64
-        | Ok U64
-        | Err U64 -> Ok 32
+    when List.get nfa state_ind is
+        Ok(A(b, c)) -> Ok(A(c, b))
+        Ok _
+        | Ok _
+        | Err _ -> Ok(32)
 =-=-=
 
 Name: or-pattern2
 =-=
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.10.0/vNe6s9hWzoTZtFmNkvEICPErI9ptji_ySjicO6CkucY.tar.br" }
+app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
-f : Something => Something
+f : Something -> Something
 f = |z|
-    when List.get nfa stateInd is
+    when List.get nfa state_ind is
         Ok (A b c) -> A c b
-        Ok U64
-        | Ok U64
-        | Err U64 ->
-            Ok 32
+        Ok(_)
+        | Ok(_)
+        | Err(_) ->
+            Ok(32)
 =-=-=
