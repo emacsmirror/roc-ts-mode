@@ -159,13 +159,13 @@ Uses `treesit-install-language-grammar'."
     :override t
     :feature keywords
     ((where) @font-lock-keyword-face
-     (implements) @font-lock-keyword-face
-     (when) @font-lock-keyword-face
-     (is) @font-lock-keyword-face
+     ;(implements) @font-lock-keyword-face
+     ;(when) @font-lock-keyword-face
+     ;(is) @font-lock-keyword-face
      (exposing) @font-lock-keyword-face
      "if" @font-lock-keyword-face
-     "then" @font-lock-keyword-face
-     "else" @font-lock-keyword-face
+     ;"then" @font-lock-keyword-face
+     ;"else" @font-lock-keyword-face
      "as" @font-lock-keyword-face
      "dbg" @font-lock-keyword-face
      "expect" @font-lock-keyword-face
@@ -178,7 +178,7 @@ Uses `treesit-install-language-grammar'."
      "module" @font-lock-keyword-face
      ;; "hosted" @font-lock-keyword-face
      "exposes" @font-lock-keyword-face
-     "imports" @font-lock-keyword-face
+     ;"imports" @font-lock-keyword-face
      "import" @font-lock-keyword-face
      ;; "with" @font-lock-keyword-face
      ;; "generates" @font-lock-keyword-face
@@ -196,8 +196,8 @@ Uses `treesit-install-language-grammar'."
     :language roc
     :override t
     :feature types
-    ((inferred) @font-lock-type-face
-     (ability) @font-lock-type-face)
+    ((inferred) @font-lock-type-face)
+     ;(ability) @font-lock-type-face)
 
     :language roc
     :override t
