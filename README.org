@@ -83,13 +83,6 @@ Add the following to ~config.el~ (use ~M-x doom/goto-private-config-file~, typic
   ;; Setup the LSP support:
   ;; For this to work, you'll need roc_language_server, which is distributed in
   ;; Roc releases, in your PATH.
-  (when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
-    (require 'lsp-mode)
-    (add-to-list 'lsp-language-id-configuration '(roc-ts-mode . "roc"))
-    (lsp-register-client (make-lsp-client :new-connection (lsp-stdio-connection "roc_language_server")
-                                          :activation-fn (lsp-activate-on "roc")
-                                          :major-modes '(roc-ts-mode)
-                                          :server-id 'roc_ls)))
   (when (modulep! :tools lsp +eglot)
     (set-eglot-client! 'roc-ts-mode '("roc_language_server")))
   (add-hook 'roc-ts-mode-local-vars-hook #'lsp!)
@@ -166,14 +159,7 @@ Emacs 29 comes with a built-in LSP client called Eglot. To integrate with it, ad
 First, [[https://emacs-lsp.github.io/lsp-mode/page/installation/][install lsp-mode]] if you haven't. Then add the following to your configuration:
 
 #+begin_src emacs-lisp :noeval
-(with-eval-after-load 'roc-ts-mode
-  (require 'lsp-mode)
-  (add-to-list 'lsp-language-id-configuration '(roc-ts-mode . "roc"))
-  (lsp-register-client (make-lsp-client :new-connection (lsp-stdio-connection "roc_ls")
-                                        :activation-fn (lsp-activate-on "roc")
-                                        :major-modes '(roc-ts-mode)
-                                        :server-id 'roc_ls))
-  (add-hook 'roc-ts-mode-hook #'lsp-deferred))
+(add-hook 'roc-ts-mode-hook #'lsp-deferred)
 #+end_src
 
 ** Roc CLI commands
