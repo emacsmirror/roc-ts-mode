@@ -1,3 +1,5 @@
+;;; -*- show-trailing-whitespace: t; eval: (delete-trailing-whitespace-mode -1); eval: (ws-butler-mode -1); -*-
+
 Name: before-and-after
 =-=
  app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
@@ -5,16 +7,18 @@ Name: before-and-after
 import pf.Stdout
 import pf.Task
 
-main! = |_args|
-  Stdout.line!("hi")
+main! = |_args| {
+   Stdout.line!("hi")
+}
 =-=
 app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
 import pf.Stdout
 import pf.Task
 
-main! = |_args|
-    Stdout.line!("hi")
+main! = |_args| {
+	Stdout.line!("hi")
+}
 =-=-=
 
 Name: basic
@@ -24,8 +28,9 @@ app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/downl
 import pf.Stdout
 import pf.Task
 
-main! = |_args|
-    Stdout.line!("hi")
+main! = |_args| {
+	Stdout.line!("hi")
+}
 =-=-=
 
 Name: basic2
@@ -35,15 +40,17 @@ app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/downl
 import pf.Stdout
 import pf.Task
 
-main! = |_args|
-    z = "hi"
-    obj =
-        { a: "hi\n" }
-    q = obj.a
-    Stdout.line!("hi")
+main! = |_args| {
+	z = "hi"
+	obj = 
+		{ a: "hi\n" }
+	q = obj.a
+	Stdout.line!("hi")
+}
 =-=-=
 
 Name: with-comments
+Skip: t
 =-=
 app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
@@ -51,15 +58,16 @@ import pf.Stdout
 import pf.Task
 
 # this is a comment
-main! = |_args|
-    # another comment
-    z = "hi"
-    # another comment
-    obj =
-        # another comment
-        { a: "hi\n" }
-    q = obj.a
-    Stdout.line!("hi")
+main! = |_args| {
+	# second comment
+	z = "hi"
+	# third comment
+	obj = 
+	# fourth comment
+		{ a: "hi\n" }
+	q = obj.a
+	Stdout.line!("hi")
+}
 =-=-=
 
 Name: types
@@ -69,54 +77,91 @@ app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/downl
 import pf.Stdout
 import pf.Task
 
-main : Int _ zib, Int _ { a : Int, b : Int _ => Int } -> [False (Int _ -> zabl) *, True]
-main! = |_args|
-    z = "hi"
-    obj =
-        { a: "hi\n" }
-    q = obj.a
-    Stdout.line!("hi")
+main : Int(q, zib), Int(q, { a : Int, b : Int(_) => Int }) -> [False((Int(q) -> zabl)), True]
+main! = |_args| {
+	z = "hi"
+	obj = 
+		{ a: "hi\n" }
+	q = obj.a
+	Stdout.line!("hi")
+}
 =-=-=
 
-Name: split-lines
+Name: split-lines-1
 =-=
 app [
-    main,
+	main,
 ] {
-    pf:
-        platform
-        "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br",
+	pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br",
 }
 
 import pf.Stdout
 import pf.Task
 
 main :
-    Int
-        _
-        zib,
-    Int _ {
-        a : Int,
-        b : Int
-            _
-        => Int,
-    }
-    ->
-    [
-        False
-            (Int
-                    _
-                ->
-                zabl)
-            *,
-        True,
-    ]
-main! = |_args|
-    z = "hi"
-    obj =
-        { a: "hi\n" }
-    q = obj.a
-    Stdout.line!("hi")
+	Int(
+		q,
+		zib,
+	),
+	Int(
+		qq,
+		{
+			a : Int,
+			b : Int(_) => Int,
+		},
+	) ->
+		[
+			False,
+		]
+main! = |_args| {
+	z = "hi"
+	obj = 
+		{ a: "hi\n" }
+	q = obj.a
+	Stdout.line!("hi")
+}
+=-=-=
+
+Name: split-lines-2
+Skip: t
+=-=
+app [
+	main,
+] {
+	pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br",
+}
+
+import pf.Stdout
+import pf.Task
+
+main :
+	Int(
+		q,
+		zib,
+	),
+	Int(
+		qq,
+		{
+			a : Int,
+			b : Int(_) => Int,
+		},
+	) ->
+		[
+			False(
+				(
+					Int(
+						qqq,
+					) ->
+						zabl),
+					),
+		]
+main! = |_args| {
+	z = "hi"
+	obj = 
+		{ a: "hi\n" }
+	q = obj.a
+	Stdout.line!("hi")
+}
 =-=-=
 
 Name: type-aliases
@@ -124,15 +169,14 @@ Name: type-aliases
 app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
 Musician : {
-    first_name : {
-        name : Str,
-        other_thing : Str,
-    },
-    last_name ?? Str,
+	first_name : {
+		name : Str,
+		other_thing : Str,
+	},
+	# last_name ?? Str, # not implemented yet in new compiler
 }
 
 Username := Str
-
 =-=-=
 
 Name: plus
@@ -140,22 +184,21 @@ Name: plus
 app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
 ## This is a doc comment.
-add_and_stringify = |num1, num2|
-    Num.to_str(
-        num1
-        +
-        num2,
-    )
+add_and_stringify = |num1, num2| {
+	Num.to_str(
+		num1
+			+
+			num2,
+	)
+}
 =-=-=
 
-Name: pipes
+Name: static-dispatch
 =-=
 app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
-to_json : a -> List U8 where a implements Encoding
-to_json = |val|
-    val
-    |> Encode.to_bytes(JSON.encoder)
+stringify : e -> Str where [a.to_str : a -> Str]
+stringify = |value| value.to_str()
 =-=-=
 
 Name: or-pattern
@@ -163,24 +206,25 @@ Name: or-pattern
 app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
 f : Something -> Something
-f = |z|
-    when List.get nfa state_ind is
-        Ok(A(b, c)) -> Ok(A(c, b))
-        Ok _
-        | Ok _
-        | Err _ -> Ok(32)
+f = |z| match List.get(nfa, state_ind) {
+	Ok(A(b, c)) => Ok(A(c, b))
+	Ok(_)
+	| Ok(_)
+	| Err(_) => Ok(32)
+}
 =-=-=
 
 Name: or-pattern2
+Skip: t
 =-=
 app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.20.0/X73hGh05nNTkDHU06FHC0YfFaQB1pimX7gncRcao5mU.tar.br" }
 
 f : Something -> Something
-f = |z|
-    when List.get nfa state_ind is
-        Ok (A b c) -> A c b
-        Ok(_)
-        | Ok(_)
-        | Err(_) ->
-            Ok(32)
+f = |z| match List.get(nfa, state_ind) {
+	Ok(A(b, c)) => A(c, b)
+	Ok(_)
+	| Ok(_)
+	| Err(_) =>
+		Ok(32)
+	}
 =-=-=

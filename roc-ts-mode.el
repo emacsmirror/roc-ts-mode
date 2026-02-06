@@ -45,10 +45,19 @@
   "Major mode for the Roc programming language."
   :group 'languages)
 
-(defcustom roc-ts-indent-offset 4
-  "The basic indentation offset in `roc-ts-mode'."
-  :type 'natnum
-  :safe #'natnump
+(defcustom roc-ts-indent-offset nil
+  "The basic indentation offset in `roc-ts-mode'.
+
+If nil, use the value of `tab-width'."
+  :type '(choice (integer :tag "Number of spaces" :value 4)
+                 (const :tag "Use value of tab-width" nil))
+  :safe (lambda (x) (or (natnump x) (null x)))
+  :group 'roc-ts)
+
+(defcustom roc-ts-indent-tabs-mode t
+  "Whether to use tabs for indentation."
+  :type 'boolean
+  :safe #'booleanp
   :group 'roc-ts)
 
 ;;;; Commands
@@ -112,11 +121,12 @@
 (define-derived-mode roc-ts-mode prog-mode "Roc"
   "Major mode for the Roc programming language."
   :group 'roc-ts
+  (setq-local indent-tabs-mode roc-ts-indent-tabs-mode)
+  (when roc-ts-indent-offset
+    (setq-local tab-width roc-ts-indent-offset))
   (setq-local comment-start "#"
               comment-start-skip (rx (one-or-more "#") (zero-or-more blank))
-              comment-column 0
-              indent-tabs-mode nil
-              tab-width roc-ts-indent-offset)
+              comment-column 0)
   (when (treesit-ready-p 'roc)
     (treesit-parser-create 'roc)
     (roc-ts--ts-setup)))
@@ -309,14 +319,20 @@ Uses `treesit-install-language-grammar'."
 This is passed to `treesit-font-lock-rules' and assigned to
 `treesit-font-lock-settings' in `roc-ts--ts-setup'.")
 
+(defun roc-ts--indent-offset (&rest _)
+  (or roc-ts-indent-offset
+      tab-width))
+
 (defvar roc-ts--ts-indent-rules
   `(;; The app header should be in the first column:
-    ((node-is ,(rx bos "app_header" eos)) column-0 0)
+    ((node-is ,(rx bos (or "file" "app_header" "app") eos)) column-0 0)
     ;; Node types that should be at the same indentation level as their parents:
     ;; - closing brackets
     ((n-p-gp ,(rx (or "]" "}" ")")) nil nil) parent-bol 0)
     ;; - | in a pattern match
     ((n-p-gp ,(rx bos "|" eos) "disjunct_pattern" nil) parent-bol 0)
+    ;; TODO: handle this case
+    ((n-p-gp nil ,(rx bos "tag_type" eos) nil) no-indent 0)
     ;; - all top-level things
     ((parent-is "file") parent-bol 0)
     ;; - type annotations and the LHS of value declarations
@@ -324,16 +340,13 @@ This is passed to `treesit-font-lock-rules' and assigned to
     ((n-p-gp ,(rx bos "decl_left" eos) ,(rx bos "value_declaration" eos) nil) parent-bol 0)
     ;; - else, else if, then
     ((n-p-gp ,(rx bos (or "else" "else_if" "then") eos) "if_expr" nil) parent-bol 0)
-    ;; - binary operators
-    ((parent-is ,(rx bos "bin_op_expr" eos)) parent-bol 0)
-    ;; - function types
-    ((parent-is ,(rx bos "function_type" eos)) parent-bol 0)
-    ;; - type arguments
-    ((n-p-gp nil ,(rx bos "apply_type_args" eos) ,(rx bos "apply_type" eos)) parent-bol 0)
+    ;; - input types (and commas) in function types
+    ((match nil ,(rx bos "function_type" eos) ,(rx bos "param" eos)) parent-bol 0)
+    ((match ,(rx bos "," eos) ,(rx bos "function_type" eos)) parent-bol 0)
     ;; - multi-part identifiers (e.g., with "!" at the end)
     ((n-p-gp nil ,(rx bos "identifier" eos) nil) parent-bol 0)
     ;; Everything else should be indented one level further then its parent:
-    (catch-all parent-bol roc-ts-indent-offset))
+    (catch-all parent-bol ,#'roc-ts--indent-offset))
   "Rules for indenting Roc code based on tree-sitter.
 
 This is assigned to an entry of `treesit-simple-indent-rules'.")
@@ -397,36 +410,22 @@ This is assigned to an entry of `treesit-simple-indent-rules'.")
   (if-let* ((target-indent-level
              (without-restriction
                (or
-                ;; When typing "else" at the wrong indentation level
-                (ignore-errors
-                  (save-excursion
-                    (when (roc-ts--line-match-p (rx bol (* blank) "else" word-end))
-                      (let ((num-ifs 0)
-                            (num-elses 0))
-                        (while (<= num-ifs num-elses)
-                          (when (eq (roc-ts--line-indent-level) 0)
-                            (error "roc-ts--indent-line: Can't find a matching if"))
-                          (roc-ts--prev-line)
-                          (when (roc-ts--line-match-p (rx word-start "if" word-end))
-                            (cl-incf num-ifs))
-                          (when (roc-ts--line-match-p (rx word-start "else" word-end))
-                            (cl-incf num-elses)))
-                        (roc-ts--line-indent-level)))))
                 ;; When the last line ends with things in `roc-ts--next-line-further-indent-regex'
                 ;; (like "->" or "[when ...] is").
                 (ignore-errors
                   (save-excursion
-                    ;; Go back to last non-blank line
-                    (roc-ts--last-nonblank-line)
-                    (and (roc-ts--line-match roc-ts--next-line-further-indent-regex)
-                         (progn
-                           ;; Shouldn't be in a comment
-                           (goto-char (+ (pos-bol) (match-beginning 0)))
-                           (not (equal (treesit-node-type (treesit-node-at (point)))
-                                       "line_comment")))
-                         ;; 4 + indent level of this line
-                         (+ (roc-ts--line-indent-level)
-                            roc-ts-indent-offset))))
+                    (unless (roc-ts--line-match-p (rx bol (* blank) (any ")]}")))
+                      ;; Go back to last non-blank line
+                      (roc-ts--last-nonblank-line)
+                      (and (roc-ts--line-match roc-ts--next-line-further-indent-regex)
+                           (progn
+                             ;; Shouldn't be in a comment
+                             (goto-char (+ (pos-bol) (match-beginning 0)))
+                             (not (equal (treesit-node-type (treesit-node-at (point)))
+                                         "line_comment")))
+                           ;; 4 + indent level of this line
+                           (+ (roc-ts--line-indent-level)
+                              (roc-ts--indent-offset))))))
                 ;; Right after an app/module declaration
                 ;; (see after-app tests in roc-ts-mode-newline-and-indent.erts)
                 (ignore-errors
