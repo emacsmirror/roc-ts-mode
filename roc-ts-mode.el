@@ -91,6 +91,7 @@
     ;; part of symbol
     (modify-syntax-entry ?\_ "_" table)
     (modify-syntax-entry ?\! "_" table) ; can also be NOT
+    (modify-syntax-entry ?\$ "_" table) ; can also be string interpolation
 
     ;; unused
     (modify-syntax-entry ?\` "@" table)
@@ -99,10 +100,6 @@
 
     ;; escape character
     (modify-syntax-entry ?\\ "\\" table)
-    ;; This is used for string interpolation. We shouldn't designate it an
-    ;; escape character ("\\") because then Emacs thinks the dollar sign escapes
-    ;; just the first open brace: "${something}". So we call it punctuation (".").
-    (modify-syntax-entry ?\$ "." table)
 
     ;; punctuation
     (mapc (lambda (x)
