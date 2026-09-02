@@ -80,13 +80,13 @@ Add the following to ~config.el~ (use ~M-x doom/goto-private-config-file~, typic
 
   (set-popup-rule! (rx bol "*roc-ts-repl") :size 0.3)
 
-  ;; Setup the LSP support:
+  ;; Set up the LSP support:
   (when (modulep! :tools lsp +eglot)
     (set-eglot-client! 'roc-ts-mode '("roc" "experimental-lsp")))
   (add-hook 'roc-ts-mode-local-vars-hook #'lsp!)
 
   ;; Formatting
-  (set-formatter! 'roc-ts-format '("roc" "format" "--stdin" "--stdout") :modes '(roc-ts-mode))
+  (set-formatter! 'roc-ts-format '("roc" "fmt" "--stdin" "--stdout") :modes '(roc-ts-mode))
   (setq-hook! 'roc-ts-mode-local-vars-hook
     +format-with 'roc-ts-format)
 
